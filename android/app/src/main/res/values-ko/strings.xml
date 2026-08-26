@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 한국어 번역. 기본(영어)은 res/values/strings.xml 에 있습니다. -->
+<resources>
+    <string name="app_tagline">브라우저의 시크릿 · 프라이빗 모드를 차단합니다</string>
+
+    <string name="accessibility_service_label">IncognitoBlocker 시크릿 모드 차단</string>
+    <string name="accessibility_service_description">브라우저 화면에서 시크릿 · 프라이빗 모드 표시를 찾아내 해당 창을 닫습니다. 지정된 브라우저 앱의 화면만 확인하며, 방문한 웹사이트 주소나 내용은 저장하지 않고 외부로 전송하지 않습니다.</string>
+    <string name="notification_service_label">IncognitoBlocker 알림 감시</string>
+
+    <string name="status_setup_needed">설정을 시작해 주세요</string>
+    <string name="status_need_accessibility">접근성 권한이 필요합니다</string>
+    <string name="status_paused">일시 중지됨</string>
+    <string name="status_active_strong">보호 중 · 강력 모드</string>
+    <string name="status_active_basic">보호 중 · 기본 모드</string>
+
+    <string name="consent_title">먼저 읽어 주세요</string>
+    <string name="consent_body">이 앱은 브라우저 화면에서 \'시크릿 모드\' 신호만 찾습니다.\n· 방문한 웹사이트 주소나 내용은 저장하지 않습니다\n· 어떤 데이터도 외부로 전송하지 않습니다 (기록은 이 기기에만)\n· 감시 중임을 상단 알림으로 항상 표시합니다\n\n다른 사람의 기기에 설치할 때는 반드시 그 사람의 동의를 받으세요. 동의 없는 감시는 나라에 따라 불법입니다.</string>
+    <string name="consent_agree">이해했고 동의합니다</string>
+
+    <string name="section_tier1">1단계 · 기본 보호 (모든 기기)</string>
+    <string name="section_tier2">2단계 · 강력 보호 (선택, PC 필요)</string>
+    <string name="section_browsers">감시 중인 브라우저</string>
+    <string name="section_log">차단 기록 (총 %1$d회)</string>
+    <string name="section_troubleshoot">문제 해결</string>
+
+    <string name="step_accessibility_title">접근성 권한 켜기</string>
+    <string name="step_accessibility_desc">브라우저 화면에서 시크릿 모드 신호를 읽으려면 필요합니다. 목록에서 IncognitoBlocker 를 찾아 켜 주세요.</string>
+    <string name="step_accessibility_action_on">권한 켜러 가기</string>
+    <string name="step_accessibility_action_reopen">설정 다시 열기</string>
+
+    <string name="hint_restricted_title">권한 스위치가 회색으로 비활성화되어 있나요?</string>
+    <string name="hint_restricted_body">Android 13 부터는 스토어 밖에서 설치한 앱의 접근성 권한이 잠겨 있습니다.\n설정 › 앱 › IncognitoBlocker › 오른쪽 위 ⋮ › \'제한된 설정 허용\' 을 누른 뒤 다시 시도하세요.</string>
+    <string name="hint_restricted_action">앱 정보 열기</string>
+
+    <string name="step_pin_title">보호자 PIN 설정</string>
+    <string name="step_pin_desc">차단을 끄거나 설정을 바꿀 때 필요합니다. 감시받는 사람이 모르는 번호로 정하세요.</string>
+    <string name="step_pin_action_create">PIN 만들기</string>
+    <string name="step_pin_action_change">PIN 변경</string>
+
+    <string name="step_admin_title">삭제 방지 (기기 관리자)</string>
+    <string name="step_admin_desc">켜 두면 앱을 바로 지울 수 없습니다. 다만 Android 7 이상에서는 설정에서 관리자를 해제하면 결국 삭제할 수 있습니다.</string>
+    <string name="step_admin_action_on">삭제 방지 켜기</string>
+    <string name="step_admin_action_done">활성화됨</string>
+
+    <string name="step_notif_title">알림 접근 (선택)</string>
+    <string name="step_notif_desc">Chrome 은 시크릿 탭이 열려 있으면 상태바 알림을 띄웁니다. 이 권한을 주면 화면 감지를 놓쳐도 잡아낼 수 있습니다.</string>
+    <string name="step_notif_action">알림 접근 설정</string>
+
+    <string name="step_battery_title">배터리 최적화 제외</string>
+    <string name="step_battery_desc">제조사 절전 기능이 감시자를 강제 종료하지 않도록 합니다.</string>
+    <string name="step_battery_action">배터리 설정 열기</string>
+
+    <string name="strong_active_title">강력 모드 작동 중</string>
+    <string name="strong_active_body">Chrome 과 Edge 의 시크릿 모드가 OS 정책으로 꺼져 있습니다. 메뉴에서 항목 자체가 사라지므로 우회할 수 없습니다.\n\n정책을 걸 수 없는 브라우저(Firefox, 삼성 인터넷, DuckDuckGo 등)는 숨김 처리로만 막을 수 있습니다.</string>
+    <string name="strong_active_action">정책 다시 적용</string>
+
+    <string name="strong_release_title">보호 완전 해제</string>
+    <string name="strong_release_body">모든 정책을 풀고 기기 관리 권한까지 반납합니다. 되돌리려면 처음부터 다시 설정해야 합니다.</string>
+    <string name="strong_release_action">완전 해제</string>
+
+    <string name="strong_why_title">왜 강력 모드가 필요한가요?</string>
+    <string name="strong_why_body">기본 보호는 시크릿 창을 \'감지해서 닫는\' 방식이라 잠깐은 열립니다. 강력 모드는 Chrome·Edge 의 시크릿 모드를 아예 없애 버립니다.\n\n설정 방법 (기기 공장초기화 직후, 계정 추가 전에):\n1. PC 에 이 기기를 USB 로 연결\n2. 개발자 옵션 › USB 디버깅 켜기\n3. PC 터미널에서 아래 명령 실행\n\n%1$s</string>
+    <string name="strong_why_action">명령어 복사</string>
+    <string name="toast_copied">복사했습니다</string>
+
+    <string name="browsers_summary">%1$d개 설치됨 / %2$d개 인식 가능</string>
+    <string name="browsers_none">감시 대상 브라우저를 찾지 못했습니다.</string>
+
+    <string name="log_empty_title">아직 기록이 없습니다</string>
+    <string name="log_empty_body">시크릿 모드 시도가 감지되면 여기에 남습니다.</string>
+    <string name="log_recent">최근 %1$d건</string>
+    <string name="log_clear">기록 지우기</string>
+    <string name="toast_log_cleared">기록을 지웠습니다</string>
+
+    <string name="diag_title_on">진단 모드 켜짐</string>
+    <string name="diag_title_off">시크릿 모드가 안 막히나요?</string>
+    <string name="diag_body">브라우저마다 시크릿 모드를 나타내는 화면 신호가 다르고, 앱 업데이트마다 바뀝니다.\n특히 삼성 인터넷은 시크릿 모드를 끄는 공개 정책이 없어서 화면 감지에만 의존합니다.\n\n진단 모드를 켜고 해당 브라우저에서 시크릿 모드를 연 다음 여기로 돌아오면, 그 화면에서 실제로 읽힌 ID · 문자열이 아래 기록에 남습니다. 그 값을 BrowserRules.kt 에 추가하면 감지되기 시작합니다.</string>
+    <string name="diag_action_on">진단 모드 켜기</string>
+    <string name="diag_action_off">진단 모드 끄기</string>
+
+    <string name="pause_title">차단 일시 중지</string>
+    <string name="pause_body">PIN 을 입력하면 차단이 꺼집니다.</string>
+    <string name="pause_action">일시 중지</string>
+    <string name="resume_title">차단 다시 켜기</string>
+    <string name="resume_body">차단이 꺼져 있습니다. 다시 켜 주세요.</string>
+    <string name="resume_action">다시 켜기</string>
+
+    <string name="footer_limits">\n한계를 솔직히 알려 드립니다: 기본 모드는 시크릿 창을 \'열린 뒤 즉시 닫는\' 방식입니다. 완전한 차단을 원하면 2단계 강력 모드를 쓰세요. 그리고 어떤 방식이든 다른 기기나 새 브라우저 설치까지 막지는 못합니다.</string>
+
+    <string name="pin_hint">PIN</string>
+    <string name="pin_setup_title">보호자 PIN 만들기</string>
+    <string name="pin_setup_msg">숫자 4자리 이상. 잊어버리면 앱을 지우는 것 말고는 방법이 없습니다.</string>
+    <string name="pin_save">저장</string>
+    <string name="pin_cancel">취소</string>
+    <string name="pin_ok">확인</string>
+    <string name="pin_too_short">4자리 이상 입력하세요</string>
+    <string name="pin_saved">PIN 을 저장했습니다</string>
+    <string name="pin_confirm_title">PIN 확인</string>
+    <string name="pin_wrong">PIN 이 맞지 않습니다</string>
+    <string name="pin_required_title">PIN 이 필요합니다</string>
+    <string name="pin_required_msg">이 동작은 보호자 PIN 으로만 실행할 수 있습니다.\n먼저 PIN 을 설정해 주세요.\n\n감시받는 사람이 모르는 번호로 정해야 의미가 있습니다.</string>
+
+    <string name="apply_result_title">완료</string>
+    <string name="apply_result_heading">정책 적용 결과</string>
+    <string name="apply_result_managed">시크릿 모드 차단: %1$d개</string>
+    <string name="apply_result_hidden">숨김 처리: %1$d개</string>
+    <string name="apply_result_errors">실패:</string>
+    <string name="release_ok">모든 보호를 해제했습니다</string>
+    <string name="release_fail">해제에 실패했습니다</string>
+    <string name="admin_explanation">앱이 함부로 삭제되지 않도록 보호합니다. 기기를 초기화하거나 잠그지 않습니다.</string>
+
+    <string name="toast_cannot_open_settings">설정을 열 수 없습니다</string>
+    <string name="toast_not_supported">이 기기에서는 지원하지 않습니다</string>
+    <string name="toast_cannot_open_admin">기기 관리자를 열 수 없습니다</string>
+    <string name="readonly_hint">(읽기 전용 — 변경하려면 관리자 권한으로 실행)</string>
+
+    <string name="overlay_title">시크릿 모드는 사용할 수 없습니다</string>
+    <string name="overlay_body">%1$s 에서 시크릿/프라이빗 창이 감지되어 닫았습니다.</string>
+    <string name="overlay_countdown">%1$d초 후 닫힙니다</string>
+    <string name="overlay_hint">일반 창으로 다시 이용해 주세요</string>
+
+    <string name="notif_channel_name">보호 상태</string>
+    <string name="notif_channel_desc">시크릿 모드 차단이 동작 중임을 항상 알려 줍니다</string>
+    <string name="notif_stopped_title">보호가 중단되었습니다</string>
+    <string name="notif_stopped_text">접근성 권한이 꺼져 있어 시크릿 모드를 막을 수 없습니다. 눌러서 다시 켜세요.</string>
+    <string name="notif_paused_title">일시 중지됨</string>
+    <string name="notif_paused_text">차단이 잠시 꺼져 있습니다.</string>
+    <string name="notif_active_title">시크릿 모드 차단 중 (%1$s)</string>
+    <string name="notif_active_text">브라우저의 시크릿·프라이빗 창을 감시하고 있습니다. 지금까지 %1$d회 차단.</string>
+    <string name="tier_strong">강력 보호</string>
+    <string name="tier_basic">기본 보호</string>
+
+    <string name="admin_enabled_toast">삭제 방지가 켜졌습니다</string>
+    <string name="admin_disable_warning">해제하면 시크릿 모드 차단이 풀리고 앱을 삭제할 수 있게 됩니다. 약속한 상대에게 이 사실이 기록으로 남습니다.</string>
+
+    <string name="log_label_diagnostic">진단 · %1$s</string>
+    <string name="log_label_notification">%1$s (알림)</string>
+    <string name="log_signal_notification">시크릿 세션이 유지되고 있음</string>
+    <string name="log_signal_always_private">항상 프라이빗인 브라우저</string>
+    <string name="log_screen_unreadable">(화면을 읽을 수 없음)</string>
+    <string name="log_none">(없음)</string>
+
+    <string name="do_not_owner">device owner 가 아닙니다. adb 로 먼저 승격해야 합니다.</string>
+    <string name="do_skip_hide">숨김을 건너뛰었습니다: Chrome 이나 Edge 가 설치돼 있지 않아, 숨기면 쓸 수 있는 브라우저가 하나도 남지 않습니다. Chrome 을 설치한 뒤 다시 적용하세요.</string>
+    <string name="do_err_policy">%1$s 정책 실패: %2$s</string>
+    <string name="do_err_hide">%1$s 숨김 실패: %2$s</string>
+    <string name="do_err_unknown_sources">알 수 없는 출처 차단 실패: %1$s</string>
+    <string name="do_err_uninstall_block">삭제 방지 실패: %1$s</string>
+    <string name="do_err_force_stop_block">강제종료 방지 실패: %1$s</string>
+    <string name="do_err_restriction">%1$s 실패: %2$s</string>
+</resources>

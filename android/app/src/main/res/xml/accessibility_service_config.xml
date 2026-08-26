@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  packageNames is listed explicitly on purpose.
+
+  With it set, this service can see nothing except the screens of the browsers
+  below. It is the part of the design that proves, in code, that the app does
+  not look at more than it needs to.
+
+  flagReportViewIds is mandatory. Without it getViewIdResourceName() always
+  returns null and every view-ID based signal silently stops working.
+
+  isAccessibilityTool is deliberately NOT declared. This is a guardian tool, not
+  an assistive technology for users with disabilities; declaring it true would
+  violate Google Play policy.
+
+  Keep this list in sync with BrowserRules.allPackages.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeWindowsChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="200"
+    android:packageNames="com.android.chrome,com.chrome.beta,com.chrome.dev,com.chrome.canary,com.microsoft.emmx,com.microsoft.emmx.beta,com.microsoft.emmx.dev,com.brave.browser,com.brave.browser_beta,com.brave.browser_nightly,com.sec.android.app.sbrowser,com.sec.android.app.sbrowser.beta,org.mozilla.firefox,org.mozilla.firefox_beta,org.mozilla.fenix,org.mozilla.fennec_aurora,org.mozilla.focus,org.mozilla.klar,com.duckduckgo.mobile.android,org.torproject.torbrowser,com.opera.browser,com.opera.browser.beta,com.opera.gx,com.opera.mini.native,com.naver.whale,com.vivaldi.browser,com.vivaldi.browser.snapshot,com.kiwibrowser.browser,com.android.browser"
+    android:settingsActivity="com.incognitoblocker.ui.MainActivity" />

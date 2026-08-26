@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default (English) strings.
+  Korean translations live in res/values-ko/strings.xml.
+-->
+<resources>
+    <string name="app_name">IncognitoBlocker</string>
+    <string name="app_tagline">Blocks incognito and private browsing</string>
+
+    <string name="accessibility_service_label">IncognitoBlocker private-mode guard</string>
+    <!-- Shown verbatim to the user on the Accessibility settings screen. Say exactly what it does. -->
+    <string name="accessibility_service_description">Looks for incognito / private mode indicators on browser screens and closes those windows. It only reads the screens of the listed browser apps. It does not store the websites you visit and never sends anything off the device.</string>
+    <string name="notification_service_label">IncognitoBlocker notification watcher</string>
+
+    <!-- Status banner -->
+    <string name="status_setup_needed">Set-up required</string>
+    <string name="status_need_accessibility">Accessibility permission needed</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_active_strong">Protected · Strong mode</string>
+    <string name="status_active_basic">Protected · Basic mode</string>
+
+    <!-- Consent gate -->
+    <string name="consent_title">Please read this first</string>
+    <string name="consent_body">This app only looks for the “incognito mode” indicator on browser screens.\n· It does not store the addresses or contents of pages you visit\n· It never sends any data off this device (records stay here)\n· It always shows a notification while it is watching\n\nIf you install this on someone else’s device, get their consent first. Monitoring someone without consent is illegal in some countries.</string>
+    <string name="consent_agree">I understand and agree</string>
+
+    <!-- Sections -->
+    <string name="section_tier1">Step 1 · Basic protection (any device)</string>
+    <string name="section_tier2">Step 2 · Strong protection (optional, needs a PC)</string>
+    <string name="section_browsers">Browsers being watched</string>
+    <string name="section_log">Block history (%1$d total)</string>
+    <string name="section_troubleshoot">Troubleshooting</string>
+
+    <!-- Setup steps -->
+    <string name="step_accessibility_title">Turn on accessibility access</string>
+    <string name="step_accessibility_desc">Needed to read the incognito indicator on browser screens. Find IncognitoBlocker in the list and switch it on.</string>
+    <string name="step_accessibility_action_on">Open settings</string>
+    <string name="step_accessibility_action_reopen">Open settings again</string>
+
+    <string name="hint_restricted_title">Is the switch greyed out?</string>
+    <string name="hint_restricted_body">From Android 13 on, accessibility access is locked for apps installed outside the store.\nGo to Settings › Apps › IncognitoBlocker › ⋮ (top right) › “Allow restricted settings”, then try again.</string>
+    <string name="hint_restricted_action">Open app info</string>
+
+    <string name="step_pin_title">Set a guardian PIN</string>
+    <string name="step_pin_desc">Required to pause protection or change settings. Choose a number the monitored person does not know.</string>
+    <string name="step_pin_action_create">Create PIN</string>
+    <string name="step_pin_action_change">Change PIN</string>
+
+    <string name="step_admin_title">Uninstall protection (device admin)</string>
+    <string name="step_admin_desc">Makes the app harder to remove. Note that on Android 7 and later the user can still deactivate the admin in Settings and then uninstall.</string>
+    <string name="step_admin_action_on">Enable uninstall protection</string>
+    <string name="step_admin_action_done">Enabled</string>
+
+    <string name="step_notif_title">Notification access (optional)</string>
+    <string name="step_notif_desc">Chrome posts a persistent notification while incognito tabs are open. With this permission the app still catches sessions it missed on screen.</string>
+    <string name="step_notif_action">Notification access settings</string>
+
+    <string name="step_battery_title">Exempt from battery optimisation</string>
+    <string name="step_battery_desc">Stops the manufacturer’s power saving from killing the guard.</string>
+    <string name="step_battery_action">Open battery settings</string>
+
+    <!-- Strong mode -->
+    <string name="strong_active_title">Strong mode is active</string>
+    <string name="strong_active_body">Incognito mode is switched off in Chrome and Edge at the OS policy level — the menu entry is gone entirely, so it cannot be worked around.\n\nBrowsers with no such policy (Firefox, Samsung Internet, DuckDuckGo and others) can only be hidden.</string>
+    <string name="strong_active_action">Re-apply policies</string>
+
+    <string name="strong_release_title">Remove all protection</string>
+    <string name="strong_release_body">Clears every policy and gives up device-owner rights. Restoring it means starting over from scratch.</string>
+    <string name="strong_release_action">Remove everything</string>
+
+    <string name="strong_why_title">Why would I need strong mode?</string>
+    <string name="strong_why_body">Basic protection detects an incognito window and closes it, so it is briefly open. Strong mode removes incognito mode from Chrome and Edge altogether.\n\nHow to set it up (right after a factory reset, before adding any account):\n1. Connect this device to a PC over USB\n2. Turn on Developer options › USB debugging\n3. Run the command below in a terminal on the PC\n\n%1$s</string>
+    <string name="strong_why_action">Copy command</string>
+    <string name="toast_copied">Copied</string>
+
+    <!-- Browser list -->
+    <string name="browsers_summary">%1$d installed / %2$d recognised</string>
+    <string name="browsers_none">No watched browsers found.</string>
+
+    <!-- Block log -->
+    <string name="log_empty_title">No records yet</string>
+    <string name="log_empty_body">Attempts to use incognito mode will appear here.</string>
+    <string name="log_recent">Last %1$d</string>
+    <string name="log_clear">Clear history</string>
+    <string name="toast_log_cleared">History cleared</string>
+
+    <!-- Diagnostics -->
+    <string name="diag_title_on">Diagnostic mode is on</string>
+    <string name="diag_title_off">Incognito mode not being blocked?</string>
+    <string name="diag_body">Every browser marks incognito mode differently, and the markers change with each app update.\nSamsung Internet in particular has no public policy for disabling incognito, so screen detection is the only option.\n\nTurn on diagnostic mode, open incognito mode in that browser, then come back here. The IDs and text actually read from that screen will appear in the history below. Add those values to BrowserRules.kt and detection will start working.</string>
+    <string name="diag_action_on">Turn on diagnostic mode</string>
+    <string name="diag_action_off">Turn off diagnostic mode</string>
+
+    <!-- Pause -->
+    <string name="pause_title">Pause protection</string>
+    <string name="pause_body">Entering the PIN turns blocking off.</string>
+    <string name="pause_action">Pause</string>
+    <string name="resume_title">Resume protection</string>
+    <string name="resume_body">Blocking is currently off. Please turn it back on.</string>
+    <string name="resume_action">Resume</string>
+
+    <string name="footer_limits">\nAn honest note on the limits: basic mode closes an incognito window right after it opens, rather than preventing it. For a complete block, use step 2 (strong mode). And no mode can stop another device or a newly installed browser.</string>
+
+    <!-- PIN dialogs -->
+    <string name="pin_hint">PIN</string>
+    <string name="pin_setup_title">Create a guardian PIN</string>
+    <string name="pin_setup_msg">At least 4 digits. If you forget it, the only way out is to uninstall the app.</string>
+    <string name="pin_save">Save</string>
+    <string name="pin_cancel">Cancel</string>
+    <string name="pin_ok">OK</string>
+    <string name="pin_too_short">Enter at least 4 digits</string>
+    <string name="pin_saved">PIN saved</string>
+    <string name="pin_confirm_title">Confirm PIN</string>
+    <string name="pin_wrong">Incorrect PIN</string>
+    <string name="pin_required_title">A PIN is required</string>
+    <string name="pin_required_msg">This action can only be performed with the guardian PIN.\nPlease set a PIN first.\n\nIt is only meaningful if the monitored person does not know it.</string>
+
+    <!-- Device owner result dialog -->
+    <string name="apply_result_title">Done</string>
+    <string name="apply_result_heading">Policy result</string>
+    <string name="apply_result_managed">Incognito disabled: %1$d</string>
+    <string name="apply_result_hidden">Hidden: %1$d</string>
+    <string name="apply_result_errors">Failed:</string>
+    <string name="release_ok">All protection removed</string>
+    <string name="release_fail">Could not remove protection</string>
+    <string name="admin_explanation">Protects the app from being casually removed. It does not wipe or lock your device.</string>
+
+    <!-- Toasts / errors -->
+    <string name="toast_cannot_open_settings">Could not open settings</string>
+    <string name="toast_not_supported">Not supported on this device</string>
+    <string name="toast_cannot_open_admin">Could not open device admin settings</string>
+    <string name="readonly_hint">(read-only — run as administrator to make changes)</string>
+
+    <!-- Overlay shown when a private window is detected -->
+    <string name="overlay_title">Incognito mode is not available</string>
+    <string name="overlay_body">A private window was detected in %1$s and has been closed.</string>
+    <string name="overlay_countdown">Closing in %1$d s</string>
+    <string name="overlay_hint">Please carry on in a normal window</string>
+
+    <!-- Ongoing notification -->
+    <string name="notif_channel_name">Protection status</string>
+    <string name="notif_channel_desc">Always shows that incognito blocking is running</string>
+    <string name="notif_stopped_title">Protection has stopped</string>
+    <string name="notif_stopped_text">Accessibility access is off, so incognito mode cannot be blocked. Tap to turn it back on.</string>
+    <string name="notif_paused_title">Paused</string>
+    <string name="notif_paused_text">Blocking is temporarily off.</string>
+    <string name="notif_active_title">Blocking incognito mode (%1$s)</string>
+    <string name="notif_active_text">Watching for incognito and private windows. %1$d blocked so far.</string>
+    <string name="tier_strong">strong</string>
+    <string name="tier_basic">basic</string>
+
+    <!-- Device admin -->
+    <string name="admin_enabled_toast">Uninstall protection is on</string>
+    <string name="admin_disable_warning">Turning this off removes incognito blocking and allows the app to be uninstalled. This will be recorded for the person you agreed with.</string>
+
+    <!-- Log entry labels -->
+    <string name="log_label_diagnostic">Diagnostic · %1$s</string>
+    <string name="log_label_notification">%1$s (notification)</string>
+    <string name="log_signal_notification">Private session still active</string>
+    <string name="log_signal_always_private">Browser is always private</string>
+    <string name="log_screen_unreadable">(screen could not be read)</string>
+    <string name="log_none">(none)</string>
+
+    <!-- Device owner messages -->
+    <string name="do_not_owner">Not a device owner. You must promote the app with adb first.</string>
+    <string name="do_skip_hide">Skipped hiding: Chrome and Edge are not installed, so hiding would leave no usable browser. Install Chrome and apply again.</string>
+    <string name="do_err_policy">%1$s policy failed: %2$s</string>
+    <string name="do_err_hide">%1$s could not be hidden: %2$s</string>
+    <string name="do_err_unknown_sources">Could not block unknown sources: %1$s</string>
+    <string name="do_err_uninstall_block">Could not enable uninstall protection: %1$s</string>
+    <string name="do_err_force_stop_block">Could not block force-stop: %1$s</string>
+    <string name="do_err_restriction">%1$s failed: %2$s</string>
+</resources>

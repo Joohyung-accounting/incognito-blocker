@@ -1,0 +1,28 @@
+# ---- Secrets: never commit these -------------------------------------------
+# The release signing key. If this leaks, anyone can forge an update that
+# overwrites a real install.
+android/keystore/
+android/keystore.properties
+*.jks
+*.keystore
+
+# Contains an absolute SDK path, i.e. the machine's username.
+android/local.properties
+
+# ---- Build output -----------------------------------------------------------
+.gradle/
+build/
+android/build/
+android/app/build/
+*.iml
+.idea/
+local.properties
+
+# ---- Release artifacts ------------------------------------------------------
+# APKs are attached to GitHub Releases rather than committed, so that history
+# does not grow by ~700 KB on every build.
+*.apk
+*.aab
+
+# ---- Working files ----------------------------------------------------------
+docs/_research_raw.json

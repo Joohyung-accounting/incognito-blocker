@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Minimal policy set on purpose.
+
+  Wiping the device (wipe-data) and locking the screen (force-lock) are NOT
+  requested. This app blocks a browser feature; it is not here to hold a phone
+  hostage.
+
+  For device-owner promotion the <device-admin> declaration only has to exist —
+  uses-policies may be empty.
+-->
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <watch-login />
+    </uses-policies>
+</device-admin>

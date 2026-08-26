@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 방패 + 사선(차단). 108x108 뷰포트, 안전영역은 가운데 72x72. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M54,26 L76,34 L76,56 C76,69.5 66.5,79.5 54,84 C41.5,79.5 32,69.5 32,56 L32,34 Z" />
+
+    <path
+        android:fillColor="#0B1120"
+        android:pathData="M54,34 L69,39.5 L69,56 C69,65.5 62.5,73 54,76.5 C45.5,73 39,65.5 39,56 L39,39.5 Z" />
+
+    <path
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M43,45 L66,68" />
+</vector>
