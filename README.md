@@ -59,7 +59,9 @@ Detection is **rule-based**, inferred from what the browser draws on screen — 
 |---|---|
 | Set by hand | ✅ With Private DNS on CleanBrowsing, `www.google.com` → `216.239.38.120` (Google's forced SafeSearch) and `www.youtube.com` → `216.239.38.119` (YouTube Restricted Mode). Switching Private DNS off turns the notification to "off" within 2 seconds |
 | adb grant | ✅ Switching to automatic, off, or another host is undone within 1 second. A 10-minute pause turns itself back on when the time is up |
-| Device owner | ✅ The Private DNS screen in Settings shows "Blocked by work policy", and adb's `settings put` is refused too. Pause and resume work while locked. "Remove all protection" restores the original setting, lifts the lock and drops device owner. Chrome was only seen to report "managed by your organization" — `chrome://policy` was not opened, because that means accepting Chrome's first-run terms |
+| Device owner | ✅ The Private DNS screen in Settings shows "Blocked by work policy", and adb's `settings put` is refused too. Pause and resume work while locked. "Remove all protection" restores the original setting, lifts the lock and drops device owner. `chrome://policy` lists `DnsOverHttpsMode=off` (Mandatory) alongside `IncognitoModeAvailability`, and the menu's "New Incognito tab" is greyed out. Releasing clears every policy |
+| Update from 1.0.2 | ✅ `adb install -r` keeps consent, PIN and accessibility; the notification comes back without opening the app |
+| Reboot | ✅ Notification, accessibility and filter all return without opening the app; a change is undone within a second |
 | Galaxy S24+ | ⚠️ Not yet checked on the real device |
 
 ### Other platforms

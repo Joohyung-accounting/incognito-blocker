@@ -4,7 +4,7 @@
   Korean translations live in res/values-ko/strings.xml.
 -->
 <resources>
-    <string name="app_name">IncognitoBlocker</string>
+    <string name="app_name" translatable="false">IncognitoBlocker</string>
     <string name="app_tagline">Blocks incognito browsing and adult sites</string>
 
     <string name="accessibility_service_label">IncognitoBlocker private-mode guard</string>

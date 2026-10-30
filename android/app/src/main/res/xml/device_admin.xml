@@ -7,10 +7,10 @@
   hostage.
 
   For device-owner promotion the <device-admin> declaration only has to exist —
-  uses-policies may be empty.
+  uses-policies may be empty, so it is. watch-login used to be here, unused, and
+  made the activation screen promise to "erase all the phone's data if too many
+  incorrect passwords are typed" — the opposite of the explanation beside it.
 -->
 <device-admin xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-policies>
-        <watch-login />
-    </uses-policies>
+    <uses-policies />
 </device-admin>

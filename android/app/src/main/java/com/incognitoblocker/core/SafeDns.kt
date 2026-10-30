@@ -146,6 +146,7 @@ object SafeDns {
 
     /** The strict-mode host on the active network, as the network stack reports it. */
     private fun networkHost(ctx: Context): String? = runCatching {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return@runCatching null
         val cm = ctx.getSystemService(ConnectivityManager::class.java)
         cm.getLinkProperties(cm.activeNetwork)?.privateDnsServerName
     }.getOrNull()
