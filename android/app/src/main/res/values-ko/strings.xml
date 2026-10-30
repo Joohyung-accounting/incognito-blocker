@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 한국어 번역. 기본(영어)은 res/values/strings.xml 에 있습니다. -->
 <resources>
-    <string name="app_tagline">브라우저의 시크릿 · 프라이빗 모드를 차단합니다</string>
+    <string name="app_tagline">시크릿 모드와 성인 사이트를 차단합니다</string>
 
     <string name="accessibility_service_label">IncognitoBlocker 시크릿 모드 차단</string>
     <string name="accessibility_service_description">브라우저 화면에서 시크릿 · 프라이빗 모드 표시를 찾아내 해당 창을 닫습니다. 지정된 브라우저 앱의 화면만 확인하며, 방문한 웹사이트 주소나 내용은 저장하지 않고 외부로 전송하지 않습니다.</string>
@@ -14,7 +14,7 @@
     <string name="status_active_basic">보호 중 · 기본 모드</string>
 
     <string name="consent_title">먼저 읽어 주세요</string>
-    <string name="consent_body">이 앱은 브라우저 화면에서 \'시크릿 모드\' 신호만 찾습니다.\n· 방문한 웹사이트 주소나 내용은 저장하지 않습니다\n· 어떤 데이터도 외부로 전송하지 않습니다 (기록은 이 기기에만)\n· 감시 중임을 상단 알림으로 항상 표시합니다\n\n다른 사람의 기기에 설치할 때는 반드시 그 사람의 동의를 받으세요. 동의 없는 감시는 나라에 따라 불법입니다.</string>
+    <string name="consent_body">이 앱은 브라우저 화면에서 \'시크릿 모드\' 신호만 찾습니다.\n· 방문한 웹사이트 주소나 내용은 저장하지 않습니다\n· 어떤 데이터도 외부로 전송하지 않습니다 (기록은 이 기기에만)\n· 감시 중임을 상단 알림으로 항상 표시합니다\n· 성인 사이트 차단은 켤 때만 개인 DNS 설정을 바꿉니다. 그때부터 DNS 조회는 고른 필터 회사로 갑니다\n\n다른 사람의 기기에 설치할 때는 반드시 그 사람의 동의를 받으세요. 동의 없는 감시는 나라에 따라 불법입니다.</string>
     <string name="consent_agree">이해했고 동의합니다</string>
 
     <string name="section_tier1">1단계 · 기본 보호 (모든 기기)</string>
@@ -22,6 +22,44 @@
     <string name="section_browsers">감시 중인 브라우저</string>
     <string name="section_log">차단 기록 (총 %1$d회)</string>
     <string name="section_troubleshoot">문제 해결</string>
+
+    <!-- 성인 사이트 차단 (개인 DNS) -->
+    <string name="section_dns">성인 사이트 차단 · 개인 DNS</string>
+    <string name="dns_status_on">✓  차단 중 · %1$s</string>
+    <string name="dns_status_paused">○  일시 중지 · %1$d분 남음</string>
+    <string name="dns_status_off">○  꺼짐</string>
+    <string name="dns_status_lost">○  꺼짐 · 개인 DNS 가 바뀌었습니다</string>
+    <string name="dns_status_other">○  꺼짐 · 다른 개인 DNS 사용 중 (%1$s)</string>
+    <string name="dns_unsupported">Android 9 이상에서만 쓸 수 있습니다.</string>
+    <string name="dns_off_body">켜면 이 기기의 DNS 조회(접속하려는 사이트 이름)가 고른 필터 회사로 갑니다. 이 앱은 아무것도 보내지 않습니다.</string>
+    <string name="dns_filter_line">필터: %1$s — %2$s</string>
+    <string name="dns_control_manual">잠금: 없음 (설정에서 바로 바꿀 수 있음)</string>
+    <string name="dns_control_secure">잠금: 앱이 지킴 (바꾸면 되돌림)</string>
+    <string name="dns_control_owner">잠금: 기기 소유자 (설정에서 못 바꿈)</string>
+    <string name="dns_network_broken">이 네트워크에서 인터넷이 안 됩니다. 필터 서버(포트 853)를 막는 와이파이일 수 있습니다 — 일시 중지하세요.</string>
+    <string name="dns_action_on">켜기</string>
+    <string name="dns_action_off">끄기</string>
+    <string name="dns_action_change">필터 바꾸기</string>
+    <string name="dns_action_pause">%1$d분 일시 중지</string>
+    <string name="dns_action_resume">지금 다시 켜기</string>
+    <string name="dns_pick_title">필터 고르기</string>
+    <string name="dns_cleanbrowsing">CleanBrowsing 가족 필터</string>
+    <string name="dns_cleanbrowsing_desc">성인 사이트·우회용 프록시 차단, 구글·빙·유튜브 안전 모드</string>
+    <string name="dns_adguard">AdGuard 가족 보호</string>
+    <string name="dns_adguard_desc">성인 사이트·광고·추적기 차단, 구글·빙·유튜브 안전 모드</string>
+    <string name="dns_cloudflare">Cloudflare 가족용</string>
+    <string name="dns_cloudflare_desc">성인·악성 사이트 차단, 구글·빙 안전 검색 (유튜브 제한 없음)</string>
+    <string name="dns_manual_title">개인 DNS 직접 설정</string>
+    <string name="dns_manual_msg">설정 › 연결 › 기타 연결 설정 › 개인 DNS › \'개인 DNS 제공자 호스트 이름\' 에 아래 주소를 넣고 저장하세요. \'설정 열기\' 를 누르면 주소가 복사됩니다.\n\n%1$s</string>
+    <string name="dns_manual_open">설정 열기</string>
+    <string name="dns_manual_off_msg">설정 › 연결 › 기타 연결 설정 › 개인 DNS 에서 \'자동\' 으로 바꾸세요.</string>
+    <string name="dns_grant_title">앱이 개인 DNS 를 지키게 하기 (PC 필요)</string>
+    <string name="dns_grant_body">PC 에 USB 로 연결해 아래 명령을 한 번 실행하면, 이 앱이 개인 DNS 를 직접 켜고 누가 바꾸면 되돌립니다.\n\n%1$s</string>
+    <string name="dns_grant_action">명령어 복사</string>
+    <string name="dns_toast_on">성인 사이트 차단을 켰습니다</string>
+    <string name="dns_toast_off">성인 사이트 차단을 껐습니다</string>
+    <string name="dns_toast_paused">%1$d분 동안 일시 중지합니다</string>
+    <string name="dns_toast_failed">개인 DNS 를 바꾸지 못했습니다</string>
 
     <string name="step_accessibility_title">접근성 권한 켜기</string>
     <string name="step_accessibility_desc">브라우저 화면에서 시크릿 모드 신호를 읽으려면 필요합니다. 목록에서 IncognitoBlocker 를 찾아 켜 주세요.</string>
@@ -78,11 +116,11 @@
     <string name="diag_action_on">진단 모드 켜기</string>
     <string name="diag_action_off">진단 모드 끄기</string>
 
-    <string name="pause_title">차단 일시 중지</string>
-    <string name="pause_body">PIN 을 입력하면 차단이 꺼집니다.</string>
+    <string name="pause_title">시크릿 모드 차단 일시 중지</string>
+    <string name="pause_body">PIN 을 입력하면 시크릿 모드 차단이 꺼집니다.</string>
     <string name="pause_action">일시 중지</string>
-    <string name="resume_title">차단 다시 켜기</string>
-    <string name="resume_body">차단이 꺼져 있습니다. 다시 켜 주세요.</string>
+    <string name="resume_title">시크릿 모드 차단 다시 켜기</string>
+    <string name="resume_body">시크릿 모드 차단이 꺼져 있습니다. 다시 켜 주세요.</string>
     <string name="resume_action">다시 켜기</string>
 
     <string name="footer_limits">\n한계를 솔직히 알려 드립니다: 기본 모드는 시크릿 창을 \'열린 뒤 즉시 닫는\' 방식입니다. 완전한 차단을 원하면 2단계 강력 모드를 쓰세요. 그리고 어떤 방식이든 다른 기기나 새 브라우저 설치까지 막지는 못합니다.</string>
@@ -120,13 +158,16 @@
     <string name="overlay_hint">일반 창으로 다시 이용해 주세요</string>
 
     <string name="notif_channel_name">보호 상태</string>
-    <string name="notif_channel_desc">시크릿 모드 차단이 동작 중임을 항상 알려 줍니다</string>
+    <string name="notif_channel_desc">시크릿 모드·성인 사이트 차단이 동작 중임을 항상 알려 줍니다</string>
     <string name="notif_stopped_title">보호가 중단되었습니다</string>
-    <string name="notif_stopped_text">접근성 권한이 꺼져 있어 시크릿 모드를 막을 수 없습니다. 눌러서 다시 켜세요.</string>
+    <string name="notif_stopped_text">시크릿 모드: 꺼짐 · 접근성 권한을 다시 켜세요</string>
     <string name="notif_paused_title">일시 중지됨</string>
-    <string name="notif_paused_text">차단이 잠시 꺼져 있습니다.</string>
-    <string name="notif_active_title">시크릿 모드 차단 중 (%1$s)</string>
-    <string name="notif_active_text">브라우저의 시크릿·프라이빗 창을 감시하고 있습니다. 지금까지 %1$d회 차단.</string>
+    <string name="notif_paused_text">시크릿 모드: 일시 중지</string>
+    <string name="notif_active_title">보호 중 (%1$s)</string>
+    <string name="notif_active_text">시크릿 모드: 감시 중 · %1$d회 차단</string>
+    <string name="notif_dns_on">성인 사이트: 차단 중 · %1$s</string>
+    <string name="notif_dns_off">성인 사이트: 꺼짐 · 개인 DNS 가 바뀌었습니다</string>
+    <string name="notif_dns_paused">성인 사이트: 일시 중지 · %1$d분 남음</string>
     <string name="tier_strong">강력 보호</string>
     <string name="tier_basic">기본 보호</string>
 

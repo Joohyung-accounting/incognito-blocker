@@ -5,7 +5,7 @@
 -->
 <resources>
     <string name="app_name">IncognitoBlocker</string>
-    <string name="app_tagline">Blocks incognito and private browsing</string>
+    <string name="app_tagline">Blocks incognito browsing and adult sites</string>
 
     <string name="accessibility_service_label">IncognitoBlocker private-mode guard</string>
     <!-- Shown verbatim to the user on the Accessibility settings screen. Say exactly what it does. -->
@@ -21,7 +21,7 @@
 
     <!-- Consent gate -->
     <string name="consent_title">Please read this first</string>
-    <string name="consent_body">This app only looks for the “incognito mode” indicator on browser screens.\n· It does not store the addresses or contents of pages you visit\n· It never sends any data off this device (records stay here)\n· It always shows a notification while it is watching\n\nIf you install this on someone else’s device, get their consent first. Monitoring someone without consent is illegal in some countries.</string>
+    <string name="consent_body">This app only looks for the “incognito mode” indicator on browser screens.\n· It does not store the addresses or contents of pages you visit\n· It never sends any data off this device (records stay here)\n· It always shows a notification while it is watching\n· The adult-site filter changes the Private DNS setting only when you turn it on. From then on, DNS lookups go to the filter you picked\n\nIf you install this on someone else’s device, get their consent first. Monitoring someone without consent is illegal in some countries.</string>
     <string name="consent_agree">I understand and agree</string>
 
     <!-- Sections -->
@@ -30,6 +30,44 @@
     <string name="section_browsers">Browsers being watched</string>
     <string name="section_log">Block history (%1$d total)</string>
     <string name="section_troubleshoot">Troubleshooting</string>
+
+    <!-- Adult-site filter (Private DNS) -->
+    <string name="section_dns">Adult-site blocking · Private DNS</string>
+    <string name="dns_status_on">✓  Filtering · %1$s</string>
+    <string name="dns_status_paused">○  Paused · %1$d min left</string>
+    <string name="dns_status_off">○  Off</string>
+    <string name="dns_status_lost">○  Off · Private DNS was changed</string>
+    <string name="dns_status_other">○  Off · another Private DNS is in use (%1$s)</string>
+    <string name="dns_unsupported">Needs Android 9 or later.</string>
+    <string name="dns_off_body">When on, this device’s DNS lookups (the names of the sites being opened) go to the filter you pick. This app itself sends nothing.</string>
+    <string name="dns_filter_line">Filter: %1$s — %2$s</string>
+    <string name="dns_control_manual">Lock: none (can be changed in Settings)</string>
+    <string name="dns_control_secure">Lock: kept by the app (changes are undone)</string>
+    <string name="dns_control_owner">Lock: device owner (cannot be changed in Settings)</string>
+    <string name="dns_network_broken">This network has no internet. It may be a Wi-Fi that blocks the filter (port 853) — pause the filter.</string>
+    <string name="dns_action_on">Turn on</string>
+    <string name="dns_action_off">Turn off</string>
+    <string name="dns_action_change">Change filter</string>
+    <string name="dns_action_pause">Pause for %1$d min</string>
+    <string name="dns_action_resume">Turn back on now</string>
+    <string name="dns_pick_title">Choose a filter</string>
+    <string name="dns_cleanbrowsing">CleanBrowsing Family Filter</string>
+    <string name="dns_cleanbrowsing_desc">Blocks adult sites and bypass proxies; safe mode on Google, Bing and YouTube</string>
+    <string name="dns_adguard">AdGuard Family Protection</string>
+    <string name="dns_adguard_desc">Blocks adult sites, ads and trackers; safe mode on Google, Bing and YouTube</string>
+    <string name="dns_cloudflare">Cloudflare for Families</string>
+    <string name="dns_cloudflare_desc">Blocks adult and malicious sites; SafeSearch on Google and Bing (YouTube not restricted)</string>
+    <string name="dns_manual_title">Set Private DNS by hand</string>
+    <string name="dns_manual_msg">Settings › Connections › More connection settings › Private DNS › “Private DNS provider hostname”: enter the address below and save. “Open settings” copies it for you.\n\n%1$s</string>
+    <string name="dns_manual_open">Open settings</string>
+    <string name="dns_manual_off_msg">In Settings › Connections › More connection settings › Private DNS, switch to “Automatic”.</string>
+    <string name="dns_grant_title">Let the app guard Private DNS (needs a PC)</string>
+    <string name="dns_grant_body">Connect over USB and run the command below once. The app can then switch Private DNS on by itself and put it back whenever it is changed.\n\n%1$s</string>
+    <string name="dns_grant_action">Copy command</string>
+    <string name="dns_toast_on">Adult-site blocking is on</string>
+    <string name="dns_toast_off">Adult-site blocking is off</string>
+    <string name="dns_toast_paused">Paused for %1$d minutes</string>
+    <string name="dns_toast_failed">Could not change Private DNS</string>
 
     <!-- Setup steps -->
     <string name="step_accessibility_title">Turn on accessibility access</string>
@@ -92,11 +130,11 @@
     <string name="diag_action_off">Turn off diagnostic mode</string>
 
     <!-- Pause -->
-    <string name="pause_title">Pause protection</string>
-    <string name="pause_body">Entering the PIN turns blocking off.</string>
+    <string name="pause_title">Pause incognito blocking</string>
+    <string name="pause_body">Entering the PIN turns incognito blocking off.</string>
     <string name="pause_action">Pause</string>
-    <string name="resume_title">Resume protection</string>
-    <string name="resume_body">Blocking is currently off. Please turn it back on.</string>
+    <string name="resume_title">Resume incognito blocking</string>
+    <string name="resume_body">Incognito blocking is currently off. Please turn it back on.</string>
     <string name="resume_action">Resume</string>
 
     <string name="footer_limits">\nAn honest note on the limits: basic mode closes an incognito window right after it opens, rather than preventing it. For a complete block, use step 2 (strong mode). And no mode can stop another device or a newly installed browser.</string>
@@ -139,13 +177,16 @@
 
     <!-- Ongoing notification -->
     <string name="notif_channel_name">Protection status</string>
-    <string name="notif_channel_desc">Always shows that incognito blocking is running</string>
+    <string name="notif_channel_desc">Always shows that incognito and adult-site blocking are running</string>
     <string name="notif_stopped_title">Protection has stopped</string>
-    <string name="notif_stopped_text">Accessibility access is off, so incognito mode cannot be blocked. Tap to turn it back on.</string>
+    <string name="notif_stopped_text">Incognito: off · turn accessibility access back on</string>
     <string name="notif_paused_title">Paused</string>
-    <string name="notif_paused_text">Blocking is temporarily off.</string>
-    <string name="notif_active_title">Blocking incognito mode (%1$s)</string>
-    <string name="notif_active_text">Watching for incognito and private windows. %1$d blocked so far.</string>
+    <string name="notif_paused_text">Incognito: paused</string>
+    <string name="notif_active_title">Protected (%1$s)</string>
+    <string name="notif_active_text">Incognito: watching · %1$d blocked</string>
+    <string name="notif_dns_on">Adult sites: filtering · %1$s</string>
+    <string name="notif_dns_off">Adult sites: off · Private DNS was changed</string>
+    <string name="notif_dns_paused">Adult sites: paused · %1$d min left</string>
     <string name="tier_strong">strong</string>
     <string name="tier_basic">basic</string>
 

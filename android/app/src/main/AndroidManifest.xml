@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       Needed to run the always-on watchdog and to keep a notification visible
@@ -16,6 +17,20 @@
       without it; the block screen simply cannot be drawn on those devices.
     -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!--
+      Adult-site blocking through Private DNS. Neither of these lets the app
+      reach the network — INTERNET is still not requested:
+      · ACCESS_NETWORK_STATE reads which Private DNS host the active network
+        uses and whether it has internet.
+      · WRITE_SECURE_SETTINGS can only be granted by hand over adb
+        (pm grant). With it the app writes the Private DNS setting itself and
+        puts it back when it is changed. Without it the user types the host in.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
 
     <!--
       Seeing which browsers are installed is enough.
@@ -96,6 +111,11 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
+        <!-- Ends an adult-site filter pause on time if the watchdog was killed -->
+        <receiver
+            android:name=".service.PauseEndReceiver"
+            android:exported="false" />
 
         <receiver
             android:name=".service.BootReceiver"

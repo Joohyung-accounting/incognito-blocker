@@ -28,13 +28,21 @@ object DeviceOwner {
 
     private const val TAG = "IncognitoGuardDO"
 
+    private const val CHROME = "com.android.chrome"
+
+    /**
+     * Chrome's own secure-DNS switch. "off" sends Chrome's lookups through the
+     * system resolver — that is, through Private DNS and its adult filter.
+     */
+    private const val CHROME_DOH_KEY = "DnsOverHttpsMode"
+
     /**
      * Browsers whose private mode can be switched off through managed
      * configuration. These are the only two that publish such a key.
      */
     private val MANAGED_BROWSERS = mapOf(
         // Chrome: IncognitoModeAvailability 1 = incognito disabled
-        "com.android.chrome" to Pair("IncognitoModeAvailability", 1),
+        CHROME to Pair("IncognitoModeAvailability", 1),
         // Edge: InPrivateModeAvailability 1 = InPrivate disabled
         "com.microsoft.emmx" to Pair("InPrivateModeAvailability", 1)
     )
@@ -109,10 +117,17 @@ object DeviceOwner {
         val restrictions = mutableListOf<String>()
 
         // 1) Turn incognito off outright where a policy exists.
+        //
+        //    setApplicationRestrictions replaces the whole bundle, so the
+        //    adult-site filter's Chrome key has to be written here too, or
+        //    re-applying would silently drop it.
         for ((pkg, policy) in MANAGED_BROWSERS) {
             if (!isInstalled(ctx, pkg)) continue
             runCatching {
-                val bundle = Bundle().apply { putInt(policy.first, policy.second) }
+                val bundle = Bundle().apply {
+                    putInt(policy.first, policy.second)
+                    if (pkg == CHROME && Prefs.isDnsWanted(ctx) == true) putString(CHROME_DOH_KEY, "off")
+                }
                 dpm.setApplicationRestrictions(admin, pkg, bundle)
                 managed.add("$pkg (${policy.first}=${policy.second})")
             }.onFailure { errors.add(ctx.getString(R.string.do_err_policy, pkg, it.message ?: "")) }
@@ -233,8 +248,36 @@ object DeviceOwner {
         }
         runCatching { dpm.setPermittedAccessibilityServices(admin, null) }
 
+        // Adult-site filter — "remove all protection" includes it. Turning it
+        // off lifts the Private DNS lock and puts the user's setting back; this
+        // has to run while the app is still device owner.
+        if (Prefs.isDnsWanted(ctx) == true || SafeDns.isLocked(ctx)) {
+            SafeDns.disable(ctx) {}
+            // Without the adb grant the app cannot write the setting itself, but
+            // a device owner can still hand it back to automatic.
+            if (SafeDns.activeProvider(ctx) != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                runCatching { dpm.setGlobalPrivateDnsModeOpportunistic(admin) }
+            }
+        }
+
         @Suppress("DEPRECATION")
         return runCatching { dpm.clearDeviceOwnerApp(ctx.packageName); true }.getOrDefault(false)
+    }
+
+    /**
+     * Adds or removes Chrome's secure-DNS key without touching the rest of its
+     * managed configuration. Writing a bundle with only this key would switch
+     * incognito blocking back off, because the bundle is replaced wholesale.
+     */
+    fun setChromeSecureDnsOff(ctx: Context, off: Boolean) {
+        if (!isDeviceOwner(ctx) || !isInstalled(ctx, CHROME)) return
+        runCatching {
+            val dpm = dpm(ctx)
+            val admin = admin(ctx)
+            val bundle = Bundle(dpm.getApplicationRestrictions(admin, CHROME))
+            if (off) bundle.putString(CHROME_DOH_KEY, "off") else bundle.remove(CHROME_DOH_KEY)
+            dpm.setApplicationRestrictions(admin, CHROME, bundle)
+        }.onFailure { Log.w(TAG, "Could not set Chrome's secure DNS policy", it) }
     }
 
     // ------------------------------------------------------------------

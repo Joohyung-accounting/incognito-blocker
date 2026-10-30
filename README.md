@@ -2,6 +2,7 @@
 
 Blocks incognito / private / InPrivate / secret browsing modes.
 Android, Windows, macOS, Linux and iOS — each using the mechanism that platform actually allows.
+On Android it also blocks **adult sites**, by pointing the device's Private DNS at a family-filter resolver.
 
 **[한국어 README](README.ko.md)**
 
@@ -14,6 +15,7 @@ Android, Windows, macOS, Linux and iOS — each using the mechanism that platfor
 > - **Get consent.** Installing this on an adult's device without their knowledge is illegal in many jurisdictions. The app's first screen is a consent gate for exactly this reason.
 > - It always shows a persistent notification while running. That is deliberate and is not made optional.
 > - It never sends anything off the device. It has no `INTERNET` permission, so it physically cannot.
+> - With adult-site blocking on, though, **the device's DNS lookups (the names of the sites being opened) go to the filter you picked.** Android sends them, not the app, and only while the filter is on.
 >
 > If you are looking for something that watches people secretly, this is not it, and the design actively works against that use.
 
@@ -50,6 +52,15 @@ Detection is **rule-based**, inferred from what the browser draws on screen — 
 | DuckDuckGo | Fire Button signals only | ⚠️ Partial |
 
 **Samsung Internet deserves a warning.** Samsung publishes *no* policy for disabling secret mode — the Knox `BrowserPolicy` class covers cookies, JavaScript and popups but has nothing for it. Screen detection is the only option, and the view IDs used here are empirical rather than documented. If it does not catch secret mode on your device, use **diagnostic mode** (see below) and add the strings it reports.
+
+### Adult-site blocking
+
+| Level | Result (Pixel 8 emulator, Android 17 / API 37, 2026-10-30) |
+|---|---|
+| Set by hand | ✅ With Private DNS on CleanBrowsing, `www.google.com` → `216.239.38.120` (Google's forced SafeSearch) and `www.youtube.com` → `216.239.38.119` (YouTube Restricted Mode). Switching Private DNS off turns the notification to "off" within 2 seconds |
+| adb grant | ✅ Switching to automatic, off, or another host is undone within 1 second. A 10-minute pause turns itself back on when the time is up |
+| Device owner | ✅ The Private DNS screen in Settings shows "Blocked by work policy", and adb's `settings put` is refused too. Pause and resume work while locked. "Remove all protection" restores the original setting, lifts the lock and drops device owner. Chrome was only seen to report "managed by your organization" — `chrome://policy` was not opened, because that means accepting Chrome's first-run terms |
+| Galaxy S24+ | ⚠️ Not yet checked on the real device |
 
 ### Other platforms
 
@@ -94,6 +105,46 @@ Add whatever you find to [`BrowserRules.kt`](android/app/src/main/java/com/incog
 
 ---
 
+## Adult-site blocking (Private DNS)
+
+The app points **Private DNS** (DNS-over-TLS, Android 9+) at a family-filter resolver. Deciding which sites are adult is the resolver's job; the app carries no list of its own. DNS applies to the whole device, so **incognito tabs, Samsung Internet and in-app browsers** are covered the same way — unlike incognito detection, nothing has to be inferred from the screen.
+
+The app still has no `INTERNET` permission. Android sends the DNS lookups to the filter itself.
+
+### Choosing a filter
+
+| Filter | Host | Blocks |
+|---|---|---|
+| **CleanBrowsing Family Filter** (default) | `family-filter-dns.cleanbrowsing.org` | Adult sites, proxy and VPN sites used to get around filters |
+| AdGuard Family Protection | `family.adguard-dns.com` | Adult sites, ads, trackers |
+| Cloudflare for Families | `family.cloudflare-dns.com` | Adult sites, malicious sites |
+
+Safe-search behaviour, measured on 2026-10-30 by querying each filter's plain-DNS address directly: all three send Google, Bing and DuckDuckGo to their safe-search hosts, and **only CleanBrowsing and AdGuard put YouTube into Restricted Mode** (Cloudflare leaves YouTube alone).
+
+### Lock levels
+
+| Level | What happens | To turn it off |
+|---|---|---|
+| Set by hand | The user types the host into `Settings › Connections › More connection settings › Private DNS`; the app only reports the state | Straight from Settings — the notification then says "off" |
+| **adb grant** | After a one-time `WRITE_SECURE_SETTINGS` grant over adb, the app switches the filter on itself and **puts it back the moment anything changes it** | PIN in the app |
+| Device owner | The app writes it with the adb grant, then `DISALLOW_CONFIG_PRIVATE_DNS` locks the Settings screen (and refuses adb's writes); Chrome's own secure DNS is switched off | PIN in the app |
+
+The adb grant is the strongest level that needs no factory reset.
+
+```bash
+adb shell pm grant com.incognitoblocker android.permission.WRITE_SECURE_SETTINGS
+```
+
+The first time the app changes Private DNS it **records the setting that was there**, and turning the filter off restores it (or "Automatic" when nothing was recorded).
+
+### When the internet stops working
+
+With Private DNS set to a host, **an unreachable filter server takes the whole connection down.** That happens on office or school Wi-Fi that blocks port 853, and on public Wi-Fi that shows a sign-in page first. When the network fails Android's internet check, the app's card shows a warning (that warning was not actually triggered on the emulator). From the adb-grant level up, **the PIN unlocks a 10-minute pause** that ends by itself — an alarm turns the filter back on even if the watchdog service has been killed (an inexact alarm, so possibly a few minutes late). At the set-by-hand level, switch Private DNS to "Automatic" in Settings instead.
+
+iPhones are covered by Screen Time's "Limit Adult Websites", not by an app — see [iOS](#ios).
+
+---
+
 ## Install
 
 Download the APK from [Releases](../../releases) and open it on the phone.
@@ -120,7 +171,7 @@ Windows users can run [`install-via-usb.ps1`](install-via-usb.ps1), which uninst
 powershell -ExecutionPolicy Bypass -File install-via-usb.ps1 -EnableAccessibility
 ```
 
-`-EnableAccessibility` also sidesteps Android 13+ "restricted settings", which otherwise greys out the accessibility toggle for sideloaded apps.
+`-EnableAccessibility` also sidesteps Android 13+ "restricted settings", which otherwise greys out the accessibility toggle for sideloaded apps. `-GrantSecureSettings` also switches on the adb-grant level of adult-site blocking.
 
 ### After installing
 
@@ -150,6 +201,23 @@ Then press "Re-apply policies" in the app:
 | Firefox, Samsung Internet, DuckDuckGo, Brave, Opera, … | **No policy exists** → hidden instead |
 | IncognitoBlocker itself | `setUninstallBlocked` + `setUserControlDisabledPackages` |
 | New browser installs | `DISALLOW_INSTALL_UNKNOWN_SOURCES` |
+
+With adult-site blocking on, these are applied as well:
+
+| Target | Action |
+|---|---|
+| Private DNS | Written with the adb grant, then `DISALLOW_CONFIG_PRIVATE_DNS` — the Settings screen and adb's `settings put` are both refused |
+| Chrome's own secure DNS | `DnsOverHttpsMode=off` — closes the route of picking another resolver in Chrome's settings |
+
+So strong mode needs the adb grant as well. Run one more line in the same adb session that sets the device owner:
+
+```bash
+adb shell pm grant com.incognitoblocker android.permission.WRITE_SECURE_SETTINGS
+```
+
+The device-owner API `setGlobalPrivateDnsModeSpecifiedHost` is deliberately not used. It checks the resolver with a TLS connection opened **inside the calling app**, and this app has no `INTERNET` permission, so the call always fails with `EPERM` (seen on the emulator). The lock (`DISALLOW_CONFIG_PRIVATE_DNS`) also refuses this app's own writes, so the app lifts it only for the moment it writes and puts it straight back.
+
+Chrome's managed configuration is replaced as a whole bundle, so this key is written in the same bundle as `IncognitoModeAvailability`. Writing it separately would silently switch incognito blocking off.
 
 A device owner cannot be removed from Settings. The only exit is "Remove all protection" inside the app, which needs the PIN.
 
@@ -214,6 +282,12 @@ The free alternative needs no profile at all: **Settings ▸ Screen Time ▸ Con
 | Opera GX | No policy exists — hide or uninstall it |
 | In-app browsers (Instagram, X) | Not private mode; out of scope |
 | Windows admin account | Move the user to Standard — without this the desktop side is decorative |
+| Switching Private DNS off | Set by hand: the notification says "off" · adb grant: undone at once · strong mode: the Settings screen is locked |
+| A browser's own secure DNS (DoH in Chrome or Firefox settings) | Strong mode switches Chrome's off. Other browsers cannot be stopped |
+| Browser-built-in VPNs and proxies (Opera etc.), Tor | They resolve DNS off the device, so the filter never sees it. CleanBrowsing's family filter blocks proxy and VPN site names, and strong mode hides Opera and Tor |
+| VPN apps | Whether strict Private DNS overrides a VPN's own DNS has **not been tested**. Strong mode does not restrict VPN settings either |
+| Content inside social and messaging apps | DNS works per site, so whatever is posted inside an allowed app gets through |
+| Wi-Fi that blocks port 853 | The internet itself stops — pause for 10 minutes with the PIN |
 | A second device | Nothing here can help |
 
 **No tool can stop a determined person.** What this actually provides is friction plus a record. For self-accountability the friction is usually enough; for a family arrangement the record is what a conversation can be built on.
@@ -258,13 +332,15 @@ keyAlias=mykey
 keyPassword=...
 ```
 
-The app has **zero external dependencies** — framework APIs only. The APK is ~695 KB and builds offline.
+The app has **zero external dependencies** — framework APIs only. The APK is ~720 KB and builds offline.
 
 ---
 
 ## Privacy
 
 - No `INTERNET` permission. Data cannot leave the device.
+- With adult-site blocking on, Android sends DNS lookups (site names) to the filter you picked, encrypted with DNS-over-TLS. That company's privacy policy applies to them.
+- `ACCESS_NETWORK_STATE` is used only to read which Private DNS host is in use and whether the network has internet. `WRITE_SECURE_SETTINGS` exists only when granted by hand over adb, and is used only for the two Private DNS keys (`private_dns_mode`, `private_dns_specifier`).
 - `accessibility_service_config.xml` lists `packageNames` explicitly, so the service can observe **only** the listed browsers and nothing else on the device.
 - Page content is read only for a handful of specific private-start-page phrases; URLs and page text are never stored.
 - The log holds timestamp, browser name and which signal matched. Nothing else.

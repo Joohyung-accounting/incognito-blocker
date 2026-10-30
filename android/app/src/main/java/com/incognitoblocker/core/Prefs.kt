@@ -25,6 +25,12 @@ object Prefs {
     private const val KEY_BLOCK_COUNT = "block_count"
     private const val KEY_STRICT_MODE = "strict_mode"
     private const val KEY_DIAGNOSTIC = "diagnostic_mode"
+    private const val KEY_DNS_WANTED = "dns_wanted"
+    private const val KEY_DNS_PROVIDER = "dns_provider"
+    private const val KEY_DNS_PAUSED_UNTIL = "dns_paused_until"
+    private const val KEY_DNS_ORIGINAL_SAVED = "dns_original_saved"
+    private const val KEY_DNS_ORIGINAL_MODE = "dns_original_mode"
+    private const val KEY_DNS_ORIGINAL_HOST = "dns_original_host"
 
     private const val PBKDF2_ITERATIONS = 120_000
     private const val PBKDF2_KEY_BITS = 256
@@ -104,4 +110,49 @@ object Prefs {
         prefs(ctx).edit().putInt(KEY_BLOCK_COUNT, n).apply()
         return n
     }
+
+    // ---- Adult-site filter -------------------------------------------------
+
+    /** Null until a choice exists — from the screen, or a filter typed into Settings by hand. */
+    fun isDnsWanted(ctx: Context): Boolean? {
+        val p = prefs(ctx)
+        return if (p.contains(KEY_DNS_WANTED)) p.getBoolean(KEY_DNS_WANTED, false) else null
+    }
+    fun setDnsWanted(ctx: Context, v: Boolean) =
+        prefs(ctx).edit().putBoolean(KEY_DNS_WANTED, v).apply()
+
+    fun dnsProvider(ctx: Context): SafeDns.Provider {
+        val name = prefs(ctx).getString(KEY_DNS_PROVIDER, null)
+        return SafeDns.Provider.entries.firstOrNull { it.name == name } ?: SafeDns.Provider.DEFAULT
+    }
+    fun setDnsProvider(ctx: Context, p: SafeDns.Provider) =
+        prefs(ctx).edit().putString(KEY_DNS_PROVIDER, p.name).apply()
+
+    /** Wall-clock end of a pause, 0 when not paused. */
+    fun dnsPausedUntil(ctx: Context) = prefs(ctx).getLong(KEY_DNS_PAUSED_UNTIL, 0L)
+    fun setDnsPausedUntil(ctx: Context, t: Long) =
+        prefs(ctx).edit().putLong(KEY_DNS_PAUSED_UNTIL, t).apply()
+
+    /**
+     * The Private DNS setting (mode, host) found before the app first wrote its
+     * own, so turning the filter off puts the user's setting back instead of a
+     * default. Null when nothing was recorded.
+     */
+    fun dnsOriginal(ctx: Context): Pair<String?, String?>? {
+        val p = prefs(ctx)
+        if (!p.getBoolean(KEY_DNS_ORIGINAL_SAVED, false)) return null
+        return p.getString(KEY_DNS_ORIGINAL_MODE, null) to p.getString(KEY_DNS_ORIGINAL_HOST, null)
+    }
+    fun setDnsOriginal(ctx: Context, mode: String?, host: String?) =
+        prefs(ctx).edit()
+            .putBoolean(KEY_DNS_ORIGINAL_SAVED, true)
+            .putString(KEY_DNS_ORIGINAL_MODE, mode)
+            .putString(KEY_DNS_ORIGINAL_HOST, host)
+            .apply()
+    fun clearDnsOriginal(ctx: Context) =
+        prefs(ctx).edit()
+            .remove(KEY_DNS_ORIGINAL_SAVED)
+            .remove(KEY_DNS_ORIGINAL_MODE)
+            .remove(KEY_DNS_ORIGINAL_HOST)
+            .apply()
 }

@@ -21,11 +21,16 @@
 .PARAMETER EnableAccessibility
     설치 후 접근성 서비스까지 adb 로 켭니다.
     (설정 화면을 직접 만질 필요가 없어지고, Android 13+ 의 '제한된 설정' 잠금도 우회됩니다)
+
+.PARAMETER GrantSecureSettings
+    설치 후 WRITE_SECURE_SETTINGS 권한을 adb 로 줍니다.
+    성인 사이트 차단에서 앱이 개인 DNS 를 직접 켜고, 누가 바꾸면 되돌리게 됩니다.
 #>
 [CmdletBinding()]
 param(
     [string]$ApkPath,
-    [switch]$EnableAccessibility
+    [switch]$EnableAccessibility,
+    [switch]$GrantSecureSettings
 )
 
 $ErrorActionPreference = 'Stop'
@@ -153,6 +158,21 @@ if ($EnableAccessibility) {
     } else {
         Write-Host '  [!] 자동으로 켜지 못했습니다. 폰에서 직접 켜 주세요.' -ForegroundColor Yellow
         Write-Host '      설정 ▸ 접근성 ▸ 설치된 앱 ▸ IncognitoBlocker' -ForegroundColor Yellow
+    }
+}
+
+# --- 개인 DNS 쓰기 권한 (선택) ----------------------------------------------
+if ($GrantSecureSettings) {
+    Write-Host ''
+    Write-Host '  개인 DNS 쓰기 권한을 주는 중...' -ForegroundColor DarkGray
+    & $adb shell pm grant $PKG android.permission.WRITE_SECURE_SETTINGS 2>&1 | Out-Null
+
+    $granted = (& $adb shell dumpsys package $PKG) -join "`n"
+    if ($granted -match 'WRITE_SECURE_SETTINGS: granted=true') {
+        Write-Host '  [OK] 권한을 줬습니다. 앱에서 성인 사이트 차단을 켜면 앱이 개인 DNS 를 지킵니다.' -ForegroundColor Green
+    } else {
+        Write-Host '  [!] 권한을 주지 못했습니다. 아래 명령을 직접 실행해 보세요.' -ForegroundColor Yellow
+        Write-Host "      adb shell pm grant $PKG android.permission.WRITE_SECURE_SETTINGS" -ForegroundColor Yellow
     }
 }
 

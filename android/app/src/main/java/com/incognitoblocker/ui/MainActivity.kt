@@ -15,6 +15,8 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.InputType
@@ -33,6 +35,7 @@ import com.incognitoblocker.core.BrowserRules
 import com.incognitoblocker.core.DeviceOwner
 import com.incognitoblocker.core.EventLog
 import com.incognitoblocker.core.Prefs
+import com.incognitoblocker.core.SafeDns
 import com.incognitoblocker.service.GuardAccessibilityService
 import com.incognitoblocker.service.GuardForegroundService
 import com.incognitoblocker.service.NotificationGuardService
@@ -50,6 +53,23 @@ class MainActivity : Activity() {
 
     /** Tracked so it can be dismissed in onPause — otherwise rotation leaks the Activity. */
     private var visibleDialog: Dialog? = null
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    /**
+     * The adult-site state the screen was last drawn with. Private DNS changes
+     * underneath an open screen — a pause ends, Settings is edited, the
+     * network drops — so it is re-checked while visible and the screen is
+     * redrawn only when something actually differs.
+     */
+    private var shownDnsState: String? = null
+
+    private val dnsRefresh = object : Runnable {
+        override fun run() {
+            if (dnsStateKey() != shownDnsState) render()
+            handler.postDelayed(this, DNS_REFRESH_MS)
+        }
+    }
 
     private val bg = Color.parseColor("#0B1120")
     private val card = Color.parseColor("#151E31")
@@ -76,10 +96,13 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        SafeDns.enforce(this)
         render()
+        handler.postDelayed(dnsRefresh, DNS_REFRESH_MS)
     }
 
     override fun onPause() {
+        handler.removeCallbacks(dnsRefresh)
         // Dismiss any open dialog so a configuration change cannot leak this Activity.
         visibleDialog?.takeIf { it.isShowing }?.dismiss()
         visibleDialog = null
@@ -92,6 +115,7 @@ class MainActivity : Activity() {
 
     private fun render() {
         content.removeAllViews()
+        shownDnsState = dnsStateKey()
 
         val a11yOn = GuardAccessibilityService.isEnabled(this)
         val isOwner = DeviceOwner.isDeviceOwner(this)
@@ -130,6 +154,9 @@ class MainActivity : Activity() {
             )
             return
         }
+
+        // ---- Adult-site filter ----------------------------------------
+        renderDnsSection()
 
         // ---- Tier 1 ---------------------------------------------------
         content.addView(sectionTitle(getString(R.string.section_tier1)))
@@ -311,6 +338,183 @@ class MainActivity : Activity() {
         )
 
         content.addView(body(getString(R.string.footer_limits)))
+    }
+
+    // ==================================================================
+    // Adult-site filter
+    // ==================================================================
+
+    private fun dnsStateKey(): String = listOf(
+        Prefs.isDnsWanted(this),
+        SafeDns.control(this),
+        SafeDns.configuredHost(this),
+        SafeDns.pauseMinutesLeft(this),
+        SafeDns.networkValidated(this)
+    ).joinToString("|")
+
+    private fun renderDnsSection() {
+        content.addView(sectionTitle(getString(R.string.section_dns)))
+
+        val control = SafeDns.control(this)
+        if (control == SafeDns.Control.UNSUPPORTED) {
+            content.addView(
+                cardView(getString(R.string.dns_status_off), getString(R.string.dns_unsupported), null)
+            )
+            return
+        }
+
+        val wanted = Prefs.isDnsWanted(this) == true
+        val chosen = Prefs.dnsProvider(this)
+        val active = SafeDns.activeProvider(this)
+        val paused = SafeDns.isPaused(this)
+        val otherHost = SafeDns.configuredHost(this)?.takeIf { active == null }
+
+        val heading = when {
+            paused -> getString(R.string.dns_status_paused, SafeDns.pauseMinutesLeft(this))
+            active != null -> getString(R.string.dns_status_on, getString(active.labelRes))
+            wanted -> getString(R.string.dns_status_lost)
+            otherHost != null -> getString(R.string.dns_status_other, otherHost)
+            else -> getString(R.string.dns_status_off)
+        }
+        val headingColor = when {
+            active != null -> good
+            wanted || paused -> warn
+            else -> fg
+        }
+
+        val shown = active ?: chosen
+        val lines = mutableListOf<String>()
+        if (active == null && !paused) lines += getString(R.string.dns_off_body)
+        lines += getString(R.string.dns_filter_line, getString(shown.labelRes), getString(shown.descRes))
+        lines += getString(
+            when (control) {
+                SafeDns.Control.DEVICE_OWNER -> R.string.dns_control_owner
+                SafeDns.Control.SECURE_SETTINGS -> R.string.dns_control_secure
+                else -> R.string.dns_control_manual
+            }
+        )
+        // Strict Private DNS fails closed. Say so when it is the likely reason
+        // the network has no internet, instead of leaving the user to guess.
+        if (active != null && SafeDns.networkValidated(this) == false) {
+            lines += getString(R.string.dns_network_broken)
+        }
+
+        val actions = mutableListOf<Pair<String, () -> Unit>>()
+        when {
+            paused -> actions += getString(R.string.dns_action_resume) to { enableDns(chosen) }
+            active != null -> {
+                actions += getString(R.string.dns_action_change) to {
+                    confirmWithPin { pickDnsProvider() }
+                }
+                if (control != SafeDns.Control.MANUAL) {
+                    actions += getString(R.string.dns_action_pause, DNS_PAUSE_MINUTES) to {
+                        confirmWithPin { pauseDns() }
+                    }
+                }
+                actions += getString(R.string.dns_action_off) to { confirmWithPin { disableDns() } }
+            }
+            wanted -> {
+                actions += getString(R.string.dns_action_on) to { enableDns(chosen) }
+                actions += getString(R.string.dns_action_off) to { confirmWithPin { disableDns() } }
+            }
+            else -> actions += getString(R.string.dns_action_on) to { pickDnsProvider() }
+        }
+        content.addView(buildCard(heading, lines.joinToString("\n"), actions, headingColor, card))
+
+        if (control == SafeDns.Control.MANUAL) {
+            val cmd = SafeDns.grantCommand(this)
+            content.addView(
+                cardView(
+                    getString(R.string.dns_grant_title),
+                    getString(R.string.dns_grant_body, cmd),
+                    getString(R.string.dns_grant_action) to {
+                        copyToClipboard(cmd)
+                        toast(getString(R.string.toast_copied))
+                    }
+                )
+            )
+        }
+    }
+
+    private fun pickDnsProvider() {
+        val providers = SafeDns.Provider.entries
+        val labels = providers
+            .map { getString(it.labelRes) + "\n" + getString(it.descRes) }
+            .toTypedArray()
+        showDialog(
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.dns_pick_title))
+                .setSingleChoiceItems(labels, providers.indexOf(Prefs.dnsProvider(this))) { d, which ->
+                    d.dismiss()
+                    enableDns(providers[which])
+                }
+                .setNegativeButton(getString(R.string.pin_cancel), null)
+        )
+    }
+
+    private fun enableDns(provider: SafeDns.Provider) {
+        SafeDns.enable(this, provider) { outcome ->
+            when (outcome) {
+                SafeDns.Outcome.DONE -> toast(getString(R.string.dns_toast_on))
+                SafeDns.Outcome.MANUAL_STEP -> showManualDnsDialog(provider)
+                SafeDns.Outcome.FAILED -> toast(getString(R.string.dns_toast_failed))
+            }
+            GuardForegroundService.start(this)
+            render()
+        }
+    }
+
+    private fun showManualDnsDialog(provider: SafeDns.Provider) {
+        showDialog(
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.dns_manual_title))
+                .setMessage(getString(R.string.dns_manual_msg, provider.host))
+                .setPositiveButton(getString(R.string.dns_manual_open)) { _, _ ->
+                    copyToClipboard(provider.host)
+                    toast(getString(R.string.toast_copied))
+                    openNetworkSettings()
+                }
+                .setNegativeButton(getString(R.string.pin_cancel), null)
+        )
+    }
+
+    private fun disableDns() {
+        SafeDns.disable(this) { outcome ->
+            when (outcome) {
+                SafeDns.Outcome.DONE -> toast(getString(R.string.dns_toast_off))
+                SafeDns.Outcome.MANUAL_STEP -> showDialog(
+                    AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.dns_manual_title))
+                        .setMessage(getString(R.string.dns_manual_off_msg))
+                        .setPositiveButton(getString(R.string.dns_manual_open)) { _, _ ->
+                            openNetworkSettings()
+                        }
+                        .setNegativeButton(getString(R.string.pin_cancel), null)
+                )
+                else -> toast(getString(R.string.dns_toast_failed))
+            }
+            GuardForegroundService.start(this)
+            render()
+        }
+    }
+
+    private fun pauseDns() {
+        SafeDns.pause(this, DNS_PAUSE_MINUTES) { outcome ->
+            if (outcome == SafeDns.Outcome.DONE) {
+                toast(getString(R.string.dns_toast_paused, DNS_PAUSE_MINUTES))
+            } else {
+                toast(getString(R.string.dns_toast_failed))
+            }
+            GuardForegroundService.start(this)
+            render()
+        }
+    }
+
+    /** No public intent opens the Private DNS screen itself; this lands a tap or two away. */
+    private fun openNetworkSettings() {
+        runCatching { startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS)) }
+            .recoverCatching { startActivity(Intent(Settings.ACTION_SETTINGS)) }
+            .onFailure { toast(getString(R.string.toast_cannot_open_settings)) }
     }
 
     // ==================================================================
@@ -552,6 +756,14 @@ class MainActivity : Activity() {
         action: Pair<String, () -> Unit>?,
         headingColor: Int,
         bgColor: Int
+    ): View = buildCard(heading, text, listOfNotNull(action), headingColor, bgColor)
+
+    private fun buildCard(
+        heading: String,
+        text: String,
+        actions: List<Pair<String, () -> Unit>>,
+        headingColor: Int,
+        bgColor: Int
     ): View {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -578,7 +790,7 @@ class MainActivity : Activity() {
             })
         }
 
-        action?.let { (label, handler) ->
+        actions.forEachIndexed { i, (label, handler) ->
             box.addView(Button(this).apply {
                 this.text = label
                 setTextColor(Color.parseColor("#0B1120"))
@@ -590,7 +802,7 @@ class MainActivity : Activity() {
                 layoutParams = LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply { setMargins(0, dp(14), 0, 0) }
+                ).apply { setMargins(0, dp(if (i == 0) 14 else 8), 0, 0) }
             })
         }
 
@@ -606,5 +818,7 @@ class MainActivity : Activity() {
 
     private companion object {
         const val MIN_PIN_LENGTH = 4
+        const val DNS_PAUSE_MINUTES = 10
+        const val DNS_REFRESH_MS = 5_000L
     }
 }

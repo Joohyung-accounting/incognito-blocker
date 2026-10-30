@@ -55,7 +55,7 @@ Google이 악성 앱 방지를 위해 넣은 게이트라 앱이 스스로 풀 �
 
 `설정 ▸ 접근성 ▸ 설치된 앱 ▸ IncognitoBlocker ▸ 켜기`
 
-켜면 상단에 "시크릿 모드 차단 중" 알림이 생깁니다. 이게 보이면 정상입니다.
+켜면 상단 알림에 "시크릿 모드: 감시 중" 줄이 생깁니다. 이게 보이면 정상입니다.
 
 ## 4. 배터리 최적화 해제 (S24+에서 특히 중요)
 
@@ -125,6 +125,7 @@ Signal(Kind.CONTENT_DESC,   "시크릿 모드", 2)
 ```bash
 adb install -r app-release.apk
 adb shell dpm set-device-owner com.incognitoblocker/.service.AdminReceiver
+adb shell pm grant com.incognitoblocker android.permission.WRITE_SECURE_SETTINGS   # 성인 사이트 차단 잠금(9번)에 필요
 ```
 
 성공하면 앱 상단이 **"보호 중 · 강력 모드"** 로 바뀝니다.
@@ -146,6 +147,34 @@ adb shell dpm set-device-owner com.incognitoblocker/.service.AdminReceiver
 
 ---
 
+## 9. 성인 사이트 차단 (개인 DNS)
+
+앱 맨 위 **성인 사이트 차단** 카드에서 `켜기` → 필터를 고릅니다. 기본은 CleanBrowsing 가족 필터입니다.
+
+**PC 없이** — 앱이 띄우는 안내대로 직접 넣습니다.
+
+```
+설정 ▸ 연결 ▸ 기타 연결 설정 ▸ 개인 DNS
+  ▸ 개인 DNS 제공자 호스트 이름
+  ▸ family-filter-dns.cleanbrowsing.org  ▸ 저장
+```
+
+이 상태에서는 설정에서 바로 끌 수 있고, 끄면 상단 알림이 "성인 사이트: 꺼짐"으로 바뀌기만 합니다.
+
+**PC로 한 번만** — 앱이 개인 DNS를 직접 켜고, 누가 바꾸면 즉시 되돌립니다. 공장초기화가 필요 없습니다.
+
+```bash
+adb shell pm grant com.incognitoblocker android.permission.WRITE_SECURE_SETTINGS
+```
+
+`install-via-usb.ps1 -GrantSecureSettings` 로 설치하면 같은 권한이 함께 들어갑니다. 끄기·필터 바꾸기·일시 중지는 7번의 PIN이 있어야 합니다.
+
+**강력 모드(8번)** 에서 위 권한까지 주면 개인 DNS 설정 화면 자체가 잠기고("관리자가 차단"), Chrome 설정의 "보안 DNS" 도 꺼집니다. 강력 모드만으로는 잠그지 않습니다 — 앱이 직접 쓸 수 없는 설정을 잠그면 그대로 굳어 버리기 때문입니다.
+
+> 회사·학교 와이파이처럼 포트 853을 막는 곳에서는 인터넷 전체가 끊깁니다. PC로 권한을 줬다면 앱 카드의 **10분 일시 중지**(PIN)를 쓰세요. 10분이 지나면 저절로 다시 켜집니다. 권한 없이 직접 설정했다면 개인 DNS를 '자동'으로 바꾸면 됩니다.
+
+---
+
 ## 확인 체크리스트
 
 설정이 끝났으면 실제로 테스트해 보세요.
@@ -153,6 +182,8 @@ adb shell dpm set-device-owner com.incognitoblocker/.service.AdminReceiver
 - [ ] Chrome ▸ ⋮ ▸ 새 시크릿 탭 → 차단 화면이 뜨는가?
 - [ ] 삼성 인터넷 ▸ 탭 ▸ 시크릿 모드 켜기 → 차단 화면이 뜨는가?
 - [ ] Chrome ▸ ⋮ 메뉴만 열었을 때 → 차단이 **안** 떠야 정상 (오탐 확인)
-- [ ] 상단에 "시크릿 모드 차단 중" 알림이 계속 보이는가?
+- [ ] 상단에 "보호 중" 알림이 계속 보이는가?
+- [ ] 앱의 성인 사이트 차단 카드가 "✓ 차단 중" 인가?
+- [ ] 개인 DNS를 '자동'으로 바꿔 봤을 때, 알림이 "꺼짐"으로 바뀌거나(PC 없이) 곧바로 되돌아오는가(PC로 권한을 준 경우)?
 - [ ] 기기 재부팅 후에도 알림이 다시 뜨는가?
 - [ ] 보안 폴더가 삭제되었는가?

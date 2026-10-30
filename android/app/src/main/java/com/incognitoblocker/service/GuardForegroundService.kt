@@ -8,14 +8,17 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.database.ContentObserver
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import com.incognitoblocker.R
 import com.incognitoblocker.core.DeviceOwner
 import com.incognitoblocker.core.Prefs
+import com.incognitoblocker.core.SafeDns
 import com.incognitoblocker.ui.MainActivity
 
 /**
@@ -31,6 +34,9 @@ import com.incognitoblocker.ui.MainActivity
  *  2) Recovery. When the accessibility service is switched off it dies
  *     instantly and can no longer report anything itself, so something outside
  *     it has to notice and say so.
+ *
+ *  3) The adult-site filter. It writes Private DNS back when something changes
+ *     it (once WRITE_SECURE_SETTINGS is granted) and ends a pause on time.
  */
 class GuardForegroundService : Service() {
 
@@ -41,8 +47,21 @@ class GuardForegroundService : Service() {
 
     private val healthCheck = object : Runnable {
         override fun run() {
+            SafeDns.enforce(this@GuardForegroundService)
             refreshNotification()
             handler.postDelayed(this, CHECK_INTERVAL_MS)
+        }
+    }
+
+    /**
+     * Fires the moment anything — the Settings screen, adb, another app —
+     * changes Private DNS, so the adult-site filter is written back at once
+     * rather than at the next tick.
+     */
+    private val dnsObserver = object : ContentObserver(handler) {
+        override fun onChange(selfChange: Boolean) {
+            SafeDns.enforce(this@GuardForegroundService)
+            refreshNotification()
         }
     }
 
@@ -50,6 +69,15 @@ class GuardForegroundService : Service() {
         super.onCreate()
         createChannel()
         startInForeground()
+        if (SafeDns.isSupported()) {
+            for (key in listOf(SafeDns.KEY_MODE, SafeDns.KEY_SPECIFIER)) {
+                runCatching {
+                    contentResolver.registerContentObserver(
+                        Settings.Global.getUriFor(key), false, dnsObserver
+                    )
+                }
+            }
+        }
         handler.post(healthCheck)
     }
 
@@ -60,6 +88,7 @@ class GuardForegroundService : Service() {
 
     override fun onDestroy() {
         handler.removeCallbacks(healthCheck)
+        runCatching { contentResolver.unregisterContentObserver(dnsObserver) }
         super.onDestroy()
     }
 
@@ -117,8 +146,22 @@ class GuardForegroundService : Service() {
         GuardAccessibilityService.isEnabled(this),
         Prefs.isProtectionEnabled(this),
         Prefs.blockCount(this),
-        DeviceOwner.isDeviceOwner(this)
+        DeviceOwner.isDeviceOwner(this),
+        dnsLine()
     ).joinToString("|")
+
+    /** The adult-site line of the notification, or null when the filter was never wanted. */
+    private fun dnsLine(): String? {
+        if (!SafeDns.isSupported()) return null
+        val active = SafeDns.activeProvider(this)
+        return when {
+            SafeDns.isPaused(this) ->
+                getString(R.string.notif_dns_paused, SafeDns.pauseMinutesLeft(this))
+            active != null -> getString(R.string.notif_dns_on, getString(active.labelRes))
+            Prefs.isDnsWanted(this) == true -> getString(R.string.notif_dns_off)
+            else -> null
+        }
+    }
 
     private fun buildNotification(): Notification {
         val open = PendingIntent.getActivity(
@@ -130,26 +173,24 @@ class GuardForegroundService : Service() {
 
         val healthy = GuardAccessibilityService.isEnabled(this)
         val protectionOn = Prefs.isProtectionEnabled(this)
+        val dnsFiltering = SafeDns.activeProvider(this) != null
         val tier = getString(
             if (DeviceOwner.isDeviceOwner(this)) R.string.tier_strong else R.string.tier_basic
         )
 
-        val title: String
-        val text: String
-        when {
-            !healthy -> {
-                title = getString(R.string.notif_stopped_title)
-                text = getString(R.string.notif_stopped_text)
-            }
-            !protectionOn -> {
-                title = getString(R.string.notif_paused_title)
-                text = getString(R.string.notif_paused_text)
-            }
-            else -> {
-                title = getString(R.string.notif_active_title, tier)
-                text = getString(R.string.notif_active_text, Prefs.blockCount(this))
-            }
+        // One line per guard, so the adult-site filter running on its own does
+        // not read as "protection has stopped".
+        val incognitoLine = when {
+            !healthy -> getString(R.string.notif_stopped_text)
+            !protectionOn -> getString(R.string.notif_paused_text)
+            else -> getString(R.string.notif_active_text, Prefs.blockCount(this))
         }
+        val title = when {
+            (healthy && protectionOn) || dnsFiltering -> getString(R.string.notif_active_title, tier)
+            !healthy -> getString(R.string.notif_stopped_title)
+            else -> getString(R.string.notif_paused_title)
+        }
+        val text = listOfNotNull(incognitoLine, dnsLine()).joinToString("\n")
 
         return Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(title)

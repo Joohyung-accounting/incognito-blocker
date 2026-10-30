@@ -2,6 +2,7 @@
 
 브라우저의 **시크릿 / 프라이빗 / InPrivate / 비공개 모드**를 차단합니다.
 Android · Windows · macOS · Linux · iOS를 각 OS가 실제로 허용하는 방식으로 막습니다.
+Android 앱은 **성인 사이트**도 막습니다 — 기기의 개인 DNS를 가족용 필터 DNS로 맞추는 방식입니다.
 
 **[English README](README.md)**
 
@@ -14,6 +15,7 @@ Android · Windows · macOS · Linux · iOS를 각 OS가 실제로 허용하는 
 > - **반드시 동의를 받으세요.** 성인의 기기에 몰래 설치하는 것은 여러 나라에서 불법입니다. 앱 첫 화면이 동의를 받는 이유가 이것입니다.
 > - 실행 중에는 항상 상단 알림을 띄웁니다. 의도된 동작이고 끌 수 없습니다.
 > - 어떤 데이터도 기기 밖으로 나가지 않습니다. `INTERNET` 권한이 없어서 물리적으로 불가능합니다.
+> - 단, 성인 사이트 차단을 켜면 **기기의 DNS 조회(접속하려는 사이트 이름)가 고른 필터 회사로 갑니다.** 앱이 아니라 Android가 보내는 것이고, 켰을 때만 그렇습니다.
 >
 > 몰래 감시하는 도구를 찾고 계신 거라면 이 앱은 아닙니다. 설계 자체가 그런 용도를 막고 있습니다.
 
@@ -50,6 +52,15 @@ Android에는 "이 창이 시크릿인가"를 알려주는 API가 없습니다. 
 | DuckDuckGo | Fire Button 신호만 | ⚠️ 부분적 |
 
 **삼성 인터넷은 따로 경고가 필요합니다.** 삼성은 시크릿 모드를 끄는 정책을 **공개하지 않습니다.** Knox의 `BrowserPolicy` 클래스에도 쿠키·자바스크립트·팝업만 있고 시크릿 모드 항목이 없습니다. 화면 감지가 유일한 방법이고, 여기 쓰인 뷰 ID는 문서화된 값이 아니라 경험적으로 얻은 값입니다. 내 기기에서 안 잡히면 **진단 모드**로 실제 문자열을 확인해 추가하세요.
+
+### 성인 사이트 차단
+
+| 단계 | 결과 (Pixel 8 에뮬레이터, Android 17 / API 37, 2026-10-30) |
+|---|---|
+| 직접 설정 | ✅ 개인 DNS를 CleanBrowsing으로 맞추자 `www.google.com` → `216.239.38.120`(구글 강제 안전 검색), `www.youtube.com` → `216.239.38.119`(유튜브 제한 모드). 개인 DNS를 끄면 2초 안에 알림이 "꺼짐"으로 바뀜 |
+| adb 권한 | ✅ 자동 · 끔 · 다른 호스트로 바꿔도 1초 안에 되돌림. 10분 일시 중지 → 시간이 지나면 저절로 다시 켜짐 |
+| 기기 소유자 | ✅ 설정의 개인 DNS 화면이 "관리자가 차단"으로 잠기고 adb의 `settings put`도 거부됨. 잠긴 채 일시 중지·재개 동작. "보호 완전 해제"로 원래 설정 복원 + 잠금 해제 + device owner 해제. Chrome은 "조직에서 관리" 표시까지만 확인 — `chrome://policy`는 Chrome 첫 실행 약관 화면 때문에 보지 않음 |
+| 갤럭시 S24+ | ⚠️ 실기에서는 아직 확인하지 않음 |
 
 ### 그 외 플랫폼
 
@@ -94,6 +105,46 @@ Android에는 "이 창이 시크릿인가"를 알려주는 API가 없습니다. 
 
 ---
 
+## 성인 사이트 차단 (개인 DNS)
+
+Android 9부터 있는 **개인 DNS**(DNS-over-TLS)를 가족용 필터 DNS로 맞춥니다. 어떤 사이트가 성인 사이트인지는 필터 회사가 판단하고, 이 앱에는 목록이 없습니다. DNS는 기기 전체에 걸리므로 **시크릿 탭, 삼성 인터넷, 앱 안의 브라우저까지** 똑같이 막힙니다 — 시크릿 모드 감지와 달리 화면을 추론할 필요가 없습니다.
+
+앱은 여전히 `INTERNET` 권한이 없습니다. DNS 조회는 Android가 직접 필터 서버로 보냅니다.
+
+### 필터 고르기
+
+| 필터 | 호스트 | 막는 것 |
+|---|---|---|
+| **CleanBrowsing 가족 필터** (기본) | `family-filter-dns.cleanbrowsing.org` | 성인 사이트, 우회용 프록시·VPN 사이트 |
+| AdGuard 가족 보호 | `family.adguard-dns.com` | 성인 사이트, 광고, 추적기 |
+| Cloudflare 가족용 | `family.cloudflare-dns.com` | 성인 사이트, 악성 사이트 |
+
+2026-10-30에 각 필터의 일반 DNS 주소로 직접 조회해 확인한 안전 검색 동작: 셋 다 구글·빙·덕덕고를 안전 검색 주소로 돌리고, **유튜브 제한 모드는 CleanBrowsing과 AdGuard만** 겁니다(Cloudflare는 유튜브를 그대로 둠).
+
+### 잠금 단계
+
+| 단계 | 하는 일 | 끄려면 |
+|---|---|---|
+| 직접 설정 | 사용자가 `설정 › 연결 › 기타 연결 설정 › 개인 DNS`에 호스트를 넣고, 앱은 상태만 알림 | 설정에서 바로 끌 수 있음 — 꺼지면 상단 알림이 "꺼짐"으로 바뀜 |
+| **adb 권한** | `WRITE_SECURE_SETTINGS`를 adb로 한 번 주면 앱이 직접 켜고, **누가 바꾸면 즉시 되돌림** | 앱에서 PIN |
+| 기기 소유자 | adb 권한으로 앱이 쓴 뒤 `DISALLOW_CONFIG_PRIVATE_DNS`로 설정 화면을 잠금(adb의 쓰기도 거부됨), Chrome 자체 보안 DNS도 끔 | 앱에서 PIN |
+
+adb 권한은 공장초기화 없이 쓸 수 있는 가장 강한 단계입니다.
+
+```bash
+adb shell pm grant com.incognitoblocker android.permission.WRITE_SECURE_SETTINGS
+```
+
+앱이 개인 DNS를 처음 바꿀 때 **원래 설정을 기록해 두고**, 끌 때 그 설정으로 되돌립니다(기록이 없으면 '자동').
+
+### 인터넷이 끊기면
+
+개인 DNS를 호스트로 지정하면 **필터 서버에 닿지 못할 때 인터넷 전체가 끊깁니다.** 포트 853을 막는 회사·학교 와이파이나, 로그인 페이지가 먼저 뜨는 공용 와이파이에서 그렇습니다. 네트워크가 Android의 인터넷 확인에 실패하면 앱 카드에 경고가 뜹니다(이 경고는 에뮬레이터에서 실제로 띄워 보지는 못했습니다). adb 권한 이상이면 **PIN을 넣고 10분 일시 중지**할 수 있고, 10분이 지나면 저절로 다시 켜집니다 — 감시 서비스가 죽어 있어도 알람이 다시 켭니다(정확한 알람이 아니라 최대 몇 분 늦을 수 있음). 직접 설정 단계에서는 설정에서 개인 DNS를 '자동'으로 바꾸면 됩니다.
+
+iPhone은 앱이 아니라 스크린 타임의 "성인 웹사이트 제한"으로 막습니다 — [iOS](#ios) 참고.
+
+---
+
 ## 설치
 
 [Releases](../../releases)에서 APK를 받아 폰에서 여세요.
@@ -120,7 +171,7 @@ Windows에서는 [`install-via-usb.ps1`](install-via-usb.ps1)을 쓰면 구버�
 powershell -ExecutionPolicy Bypass -File install-via-usb.ps1 -EnableAccessibility
 ```
 
-`-EnableAccessibility`를 붙이면 Android 13+의 "제한된 설정" 잠금까지 건너뜁니다.
+`-EnableAccessibility`를 붙이면 Android 13+의 "제한된 설정" 잠금까지 건너뜁니다. `-GrantSecureSettings`를 붙이면 성인 사이트 차단의 adb 권한 단계까지 켜집니다.
 
 ### 설치 후
 
@@ -150,6 +201,23 @@ adb shell dpm set-device-owner com.incognitoblocker/.service.AdminReceiver
 | Firefox, 삼성 인터넷, DuckDuckGo, Brave, Opera 등 | **정책이 없음** → 숨김 처리 |
 | IncognitoBlocker 자신 | `setUninstallBlocked` + `setUserControlDisabledPackages` |
 | 새 브라우저 설치 | `DISALLOW_INSTALL_UNKNOWN_SOURCES` |
+
+성인 사이트 차단을 켜 두면 다음도 함께 걸립니다.
+
+| 대상 | 처리 |
+|---|---|
+| 개인 DNS | adb 권한으로 쓴 뒤 `DISALLOW_CONFIG_PRIVATE_DNS` — 설정 화면도 adb의 `settings put`도 거부됨 |
+| Chrome 자체 보안 DNS | `DnsOverHttpsMode=off` — Chrome 설정에서 다른 DNS를 골라 우회하는 길을 막음 |
+
+그래서 강력 모드에서도 adb 권한이 필요합니다. device owner를 지정하는 그 adb에서 한 줄 더 실행하세요.
+
+```bash
+adb shell pm grant com.incognitoblocker android.permission.WRITE_SECURE_SETTINGS
+```
+
+device owner 전용 API인 `setGlobalPrivateDnsModeSpecifiedHost`는 쓰지 않습니다. 이 API는 **호출한 앱 안에서** TLS 연결을 열어 필터 서버를 확인하는데, 이 앱은 `INTERNET` 권한이 없어서 항상 `EPERM`으로 실패합니다(에뮬레이터에서 확인). 그리고 잠금(`DISALLOW_CONFIG_PRIVATE_DNS`)은 이 앱 자신의 쓰기도 거부하므로, 앱은 쓸 때만 잠금을 잠깐 풀었다가 바로 다시 겁니다.
+
+Chrome의 관리 구성은 묶음째로 교체되므로, 이 키는 `IncognitoModeAvailability`와 같은 묶음에 함께 씁니다. 따로 쓰면 시크릿 차단이 조용히 풀립니다.
 
 device owner는 설정에서 해제할 수 없습니다. 유일한 해제 경로는 앱 안의 "보호 완전 해제"(PIN 필요)입니다.
 
@@ -214,6 +282,12 @@ Apple 기기관리 스키마로 확인한 사실:
 | Opera GX | 정책이 없음 — 숨기거나 삭제 |
 | 인스타·X 인앱 브라우저 | 시크릿 모드가 아님, 대상 밖 |
 | Windows 관리자 계정 | 표준 사용자로 전환 — 안 하면 데스크톱 차단은 장식 |
+| 개인 DNS 끄기 | 직접 설정: 알림이 "꺼짐"으로 바뀜 · adb 권한: 즉시 되돌림 · 강력 모드: 설정 화면이 잠김 |
+| 브라우저 자체 보안 DNS (Chrome·Firefox 설정의 DoH) | 강력 모드에서 Chrome만 끔. 다른 브라우저는 못 막음 |
+| 브라우저 내장 VPN·프록시 (Opera 등), Tor | DNS를 기기 밖에서 풀어서 못 막음. CleanBrowsing 가족 필터는 프록시·VPN 사이트 이름 자체를 막고, 강력 모드는 Opera·Tor를 숨김 |
+| VPN 앱 | 엄격 모드 개인 DNS가 VPN의 DNS보다 우선하는지는 **확인하지 않음**. 강력 모드도 VPN 설정은 막지 않음 |
+| SNS·메신저 앱 안의 콘텐츠 | DNS는 사이트 단위라, 허용된 앱 안에 올라온 것은 못 막음 |
+| 포트 853을 막는 와이파이 | 인터넷 자체가 끊김 — PIN으로 10분 일시 중지 |
 | 다른 기기 사용 | 막을 방법 없음 |
 
 **마음먹은 사람을 기술로 막을 수는 없습니다.** 이 앱이 실제로 주는 건 **마찰과 기록**입니다. 자기 통제용이라면 마찰만으로 충분하고, 가족 간 약속이라면 기록이 대화의 근거가 됩니다.
@@ -258,13 +332,15 @@ keyAlias=mykey
 keyPassword=...
 ```
 
-**외부 의존성이 0개입니다** — 프레임워크 API만 씁니다. APK는 약 695 KB이고 오프라인에서도 빌드됩니다.
+**외부 의존성이 0개입니다** — 프레임워크 API만 씁니다. APK는 약 720 KB이고 오프라인에서도 빌드됩니다.
 
 ---
 
 ## 프라이버시
 
 - `INTERNET` 권한이 없습니다. 데이터가 기기 밖으로 나갈 수 없습니다.
+- 성인 사이트 차단을 켜면 Android가 DNS 조회(사이트 이름)를 고른 필터 회사로 보냅니다(DNS-over-TLS로 암호화). 그 회사의 개인정보 정책이 적용됩니다.
+- `ACCESS_NETWORK_STATE`는 지금 쓰는 개인 DNS와 인터넷 연결 여부를 읽는 데만 씁니다. `WRITE_SECURE_SETTINGS`는 adb로 직접 줄 때만 생기고, 개인 DNS 두 키(`private_dns_mode`, `private_dns_specifier`)만 씁니다.
 - `accessibility_service_config.xml`에 `packageNames`를 명시해서, 이 서비스는 **목록에 있는 브라우저 외에는 아무것도 볼 수 없습니다.**
 - 페이지 내용은 시크릿 시작 페이지의 특정 문구 몇 개를 찾을 때만 읽고, URL이나 본문은 저장하지 않습니다.
 - 기록에 남는 건 시각 · 브라우저 이름 · 어떤 신호에 걸렸는지뿐입니다.
