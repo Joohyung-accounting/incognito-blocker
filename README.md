@@ -123,6 +123,8 @@ The app still has no `INTERNET` permission. Android sends the DNS lookups to the
 
 Safe-search behaviour, measured on 2026-10-30 by querying each filter's plain-DNS address directly: all three send Google, Bing and DuckDuckGo to their safe-search hosts, and **only CleanBrowsing and AdGuard put YouTube into Restricted Mode** (Cloudflare leaves YouTube alone).
 
+Restricted Mode also hides every YouTube comment, at either strictness. To keep comments while still blocking adult sites, pick Cloudflare for Families — on a Galaxy S24+ on 2026-11-02, switching to it brought `www.youtube.com` and `youtubei.googleapis.com` back to ordinary addresses once the old answer left the phone's cache (about 3 minutes), while `www.google.com` stayed on `forcesafesearch.google.com`.
+
 ### Lock levels
 
 | Level | What happens | To turn it off |

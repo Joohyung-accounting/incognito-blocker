@@ -123,6 +123,8 @@ Android 9부터 있는 **개인 DNS**(DNS-over-TLS)를 가족용 필터 DNS로 �
 
 2026-10-30에 각 필터의 일반 DNS 주소로 직접 조회해 확인한 안전 검색 동작: 셋 다 구글·빙·덕덕고를 안전 검색 주소로 돌리고, **유튜브 제한 모드는 CleanBrowsing과 AdGuard만** 겁니다(Cloudflare는 유튜브를 그대로 둠).
 
+유튜브 제한 모드는 강도와 상관없이 댓글을 모두 숨깁니다. 성인 사이트는 막으면서 댓글은 보이게 하려면 Cloudflare 가족용을 고르세요. 2026-11-02 갤럭시 S24+에서 바꿨을 때 폰에 남아 있던 예전 주소가 지워진 뒤(약 3분) `www.youtube.com`과 `youtubei.googleapis.com`이 일반 주소로 돌아왔고, `www.google.com`은 그대로 `forcesafesearch.google.com`이었습니다.
+
 ### 잠금 단계
 
 | 단계 | 하는 일 | 끄려면 |
